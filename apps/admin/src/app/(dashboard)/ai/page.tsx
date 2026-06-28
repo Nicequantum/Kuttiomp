@@ -12,25 +12,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ErrorAlert } from "@kuttiomp/ui";
 import { api } from "@/lib/api";
+import { formatSaveError } from "@/lib/format-api-error";
 
 export default function AIPage() {
   const [promptType, setPromptType] = useState("translation");
   const [text, setText] = useState("");
   const [response, setResponse] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     if (!text.trim()) return;
     setLoading(true);
+    setError(null);
     try {
       const result = await api.ai.linguistic({
         prompt_type: promptType,
         text,
-      }) as { response: string; cultural_disclaimer: string };
-      setResponse(`${result.response}\n\n—\n${result.cultural_disclaimer}`);
-    } catch {
-      setResponse("Unable to reach the AI service. Please ensure the API is running.");
+      }) as { response: string; cultural_disclaimer?: string };
+      const disclaimer = result.cultural_disclaimer
+        ? `\n\n—\n${result.cultural_disclaimer}`
+        : "";
+      setResponse(`${result.response}${disclaimer}`);
+    } catch (err) {
+      setError(formatSaveError(err, "Request"));
+      setResponse("");
     } finally {
       setLoading(false);
     }
@@ -87,9 +95,17 @@ export default function AIPage() {
               />
             </div>
 
-            <Button onClick={handleSubmit} disabled={loading}>
+            <Button onClick={handleSubmit} disabled={loading || !text.trim()} aria-busy={loading}>
               {loading ? "Thinking..." : "Ask Kuttiomp AI"}
             </Button>
+
+            {error && (
+              <ErrorAlert
+                title="Request not completed"
+                message={error}
+                onRetry={loading ? undefined : handleSubmit}
+              />
+            )}
 
             {response && (
               <div className="rounded-md bg-muted p-4 text-sm whitespace-pre-wrap">

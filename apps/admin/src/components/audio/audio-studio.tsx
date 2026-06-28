@@ -11,7 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
+import { formatSaveError } from "@/lib/format-api-error";
 import type { Speaker } from "@kuttiomp/types";
 
 interface AudioStudioProps {
@@ -117,14 +118,24 @@ export function AudioStudio({ speakers, lexicalEntryId, apiReachable = true }: A
   }, []);
 
   const reset = useCallback(() => {
+    if (
+      hasRecording &&
+      !uploaded &&
+      !window.confirm(
+        "Discard this recording? The audio is not saved until upload completes successfully."
+      )
+    ) {
+      return;
+    }
     chunksRef.current = [];
     setHasRecording(false);
     setUploaded(false);
     setDuration(0);
     setStep(0);
     setStatus("");
+    setError(null);
     wavesurferRef.current?.destroy();
-  }, []);
+  }, [hasRecording, uploaded]);
 
   const upload = useCallback(async () => {
     setError(null);
@@ -164,7 +175,8 @@ export function AudioStudio({ speakers, lexicalEntryId, apiReachable = true }: A
       setUploaded(true);
       setStatus("");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Upload failed. Verify API and storage bucket.");
+      setError(formatSaveError(err, "Upload"));
+      setStatus("Upload failed — your recording is still on this page. Try again.");
     } finally {
       setUploading(false);
     }
@@ -190,7 +202,20 @@ export function AudioStudio({ speakers, lexicalEntryId, apiReachable = true }: A
         ))}
       </div>
 
-      {error && <ErrorAlert message={error} onRetry={() => setError(null)} />}
+      {error && (
+        <ErrorAlert
+          title="Upload not completed"
+          message={error}
+          onRetry={
+            hasRecording && !uploading
+              ? () => {
+                  setError(null);
+                  upload();
+                }
+              : undefined
+          }
+        />
+      )}
 
       {uploaded && (
         <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
@@ -280,7 +305,7 @@ export function AudioStudio({ speakers, lexicalEntryId, apiReachable = true }: A
           <div className="space-y-4">
             <div className="flex items-center gap-3 flex-wrap">
               {!isRecording ? (
-                <Button onClick={startRecording} size="lg" className="gap-2" disabled={!selectedSpeaker}>
+                <Button onClick={startRecording} size="lg" className="gap-2" disabled={!selectedSpeaker || uploading}>
                   <Mic className="h-5 w-5" /> Record
                 </Button>
               ) : (
@@ -289,7 +314,13 @@ export function AudioStudio({ speakers, lexicalEntryId, apiReachable = true }: A
                 </Button>
               )}
               {hasRecording && !isRecording && (
-                <Button onClick={upload} variant="secondary" className="gap-2" disabled={uploading}>
+                <Button
+                  onClick={upload}
+                  variant="secondary"
+                  className="gap-2"
+                  disabled={uploading}
+                  aria-busy={uploading}
+                >
                   <Upload className="h-4 w-4" /> {uploading ? "Uploading..." : "Upload"}
                 </Button>
               )}

@@ -2,6 +2,10 @@ import { getApiUrl } from "./api-url";
 
 const API_URL = getApiUrl();
 
+const TRANSIENT_STATUS = new Set([502, 503, 504]);
+const MAX_RETRIES = 2;
+const RETRY_DELAY_MS = 1000;
+
 export interface ApiErrorBody {
   error?: {
     code: string;
@@ -40,8 +44,39 @@ export class ApiError extends Error {
   }
 }
 
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchWithRetry(
+  url: string,
+  options?: RequestInit
+): Promise<Response> {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const res = await fetch(url, options);
+      if (TRANSIENT_STATUS.has(res.status) && attempt < MAX_RETRIES) {
+        await delay(RETRY_DELAY_MS * (attempt + 1));
+        continue;
+      }
+      return res;
+    } catch (err) {
+      lastError = err;
+      if (attempt < MAX_RETRIES) {
+        await delay(RETRY_DELAY_MS * (attempt + 1));
+        continue;
+      }
+      throw err;
+    }
+  }
+
+  throw lastError ?? new TypeError("Network request failed");
+}
+
 export async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetchWithRetry(`${API_URL}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -54,7 +89,7 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
 }
 
 export async function apiUpload<T>(path: string, formData: FormData): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, { method: "POST", body: formData });
+  const res = await fetchWithRetry(`${API_URL}${path}`, { method: "POST", body: formData });
   if (!res.ok) throw await ApiError.fromResponse(res);
   return res.json();
 }

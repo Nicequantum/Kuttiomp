@@ -5,9 +5,10 @@ import { CheckCircle, Clock, FileText, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ProtocolBadge } from "@kuttiomp/ui";
+import { ErrorAlert, ProtocolBadge } from "@kuttiomp/ui";
 import { CULTURAL_PROTOCOLS } from "@kuttiomp/types";
 import { api } from "@/lib/api";
+import { formatSaveError } from "@/lib/format-api-error";
 
 interface Contribution {
   id: string;
@@ -24,12 +25,23 @@ export function ContributionWorkflow() {
   const [contributions, setContributions] = useState<Contribution[]>([]);
   const [acknowledged, setAcknowledged] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const loadContributions = () => {
+    setLoading(true);
+    setLoadError(null);
+    api.contributions
+      .pending()
+      .then((data) => setContributions(data as Contribution[]))
+      .catch((err) => {
+        setContributions([]);
+        setLoadError(formatSaveError(err, "Load"));
+      })
+      .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
-    api.contributions.pending()
-      .then((data) => setContributions(data as Contribution[]))
-      .catch(() => setContributions([]))
-      .finally(() => setLoading(false));
+    loadContributions();
   }, []);
 
   const toggleProtocol = (id: number) =>
@@ -80,6 +92,13 @@ export function ContributionWorkflow() {
 
       <div>
         <h3 className="font-serif text-lg mb-4">Pending Review Queue</h3>
+        {loadError && (
+          <ErrorAlert
+            title="Could not load contributions"
+            message={loadError}
+            onRetry={loading ? undefined : loadContributions}
+          />
+        )}
         {loading ? (
           <p className="text-sm text-muted-foreground">Loading...</p>
         ) : contributions.length === 0 ? (

@@ -14,7 +14,9 @@ import { Badge } from "@/components/ui/badge";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
+import { formatSaveError } from "@/lib/format-api-error";
+import { confirmRemoveItem } from "@/lib/safe-confirm";
 import type { Speaker } from "@kuttiomp/types";
 
 interface LexiconEditorProps {
@@ -151,8 +153,7 @@ export function LexiconEditor({ entry, speakers = [], onSaved }: LexiconEditorPr
       });
       onSaved?.(result as LexicalEntry);
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : "Save failed. Check that the Kuttiomp API is reachable from this deployment.";
-      setFeedback({ type: "error", message: msg });
+      setFeedback({ type: "error", message: formatSaveError(err, "Save") });
     } finally {
       setSaving(false);
     }
@@ -171,7 +172,7 @@ export function LexiconEditor({ entry, speakers = [], onSaved }: LexiconEditorPr
             {entry?.id ? "Edit Lexical Entry" : "New Lexical Entry"}
           </span>
         </div>
-        <Button onClick={handleSave} disabled={saving} className="gap-2">
+        <Button onClick={handleSave} disabled={saving} className="gap-2" aria-busy={saving}>
           <Save className="h-4 w-4" />
           {saving ? "Saving..." : "Save Entry"}
         </Button>
@@ -183,7 +184,13 @@ export function LexiconEditor({ entry, speakers = [], onSaved }: LexiconEditorPr
           {feedback.message}
         </div>
       )}
-      {feedback?.type === "error" && <ErrorAlert message={feedback.message} />}
+      {feedback?.type === "error" && (
+        <ErrorAlert
+          title="Save not completed"
+          message={feedback.message}
+          onRetry={saving ? undefined : handleSave}
+        />
+      )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-4">
@@ -254,7 +261,16 @@ export function LexiconEditor({ entry, speakers = [], onSaved }: LexiconEditorPr
               {form.alternate_spellings.map((s, i) => (
                 <Badge key={i} variant="secondary" className="gap-1">
                   {s}
-                  <button type="button" onClick={() => update("alternate_spellings", form.alternate_spellings.filter((_, j) => j !== i))}>×</button>
+                  <button
+                    type="button"
+                    disabled={saving}
+                    onClick={() => {
+                      if (!confirmRemoveItem("alternate spelling")) return;
+                      update("alternate_spellings", form.alternate_spellings.filter((_, j) => j !== i));
+                    }}
+                  >
+                    ×
+                  </button>
                 </Badge>
               ))}
             </div>
@@ -276,7 +292,16 @@ export function LexiconEditor({ entry, speakers = [], onSaved }: LexiconEditorPr
                   next[i] = { ...next[i], spelling: e.target.value };
                   update("spelling_variants", next);
                 }} />
-                <Button type="button" variant="ghost" size="icon" onClick={() => update("spelling_variants", form.spelling_variants.filter((_, j) => j !== i))}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  disabled={saving}
+                  onClick={() => {
+                    if (v.spelling.trim() && !confirmRemoveItem("spelling variant")) return;
+                    update("spelling_variants", form.spelling_variants.filter((_, j) => j !== i));
+                  }}
+                >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
@@ -304,7 +329,19 @@ export function LexiconEditor({ entry, speakers = [], onSaved }: LexiconEditorPr
                   next[i] = { ...next[i], literal_gloss: e.target.value };
                   update("example_sentences", next);
                 }} />
-                <Button type="button" variant="ghost" size="sm" onClick={() => update("example_sentences", form.example_sentences.filter((_, j) => j !== i))}>Remove</Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={saving}
+                  onClick={() => {
+                    const hasContent = ex.sentence_narragansett.trim() || ex.sentence_english.trim();
+                    if (hasContent && !confirmRemoveItem("example sentence")) return;
+                    update("example_sentences", form.example_sentences.filter((_, j) => j !== i));
+                  }}
+                >
+                  Remove
+                </Button>
               </div>
             ))}
             <Button type="button" variant="outline" size="sm" className="gap-1" onClick={() => update("example_sentences", [...form.example_sentences, { sentence_narragansett: "", sentence_english: "" }])}>
@@ -388,7 +425,19 @@ export function LexiconEditor({ entry, speakers = [], onSaved }: LexiconEditorPr
                   next[i] = { ...next[i], tek_notes: e.target.value };
                   update("cultural_contexts", next);
                 }} />
-                <Button type="button" variant="ghost" size="sm" onClick={() => update("cultural_contexts", form.cultural_contexts.filter((_, j) => j !== i))}>Remove Context</Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={saving}
+                  onClick={() => {
+                    const hasContent = ctx.title.trim() || ctx.narrative.trim();
+                    if (hasContent && !confirmRemoveItem("cultural context entry")) return;
+                    update("cultural_contexts", form.cultural_contexts.filter((_, j) => j !== i));
+                  }}
+                >
+                  Remove Context
+                </Button>
               </div>
             ))}
             <Button type="button" variant="outline" size="sm" className="gap-1" onClick={() => update("cultural_contexts", [...form.cultural_contexts, emptyContext()])}>
