@@ -2,7 +2,7 @@
 
 ## The Definitive Documentation Manual for the Kuttiomp Narragansett Language Revitalization Platform
 
-*Version 2.0 — Prepared for Sharente (Two-Spirit Knowledge Keeper), Grandmother Comus, Grandfather, and all who steward decades of Narragansett linguistic and cultural knowledge*
+*Version 2.1 — Prepared for Sharente (Two-Spirit Knowledge Keeper), Grandmother Comus, Grandfather, and all who steward decades of Narragansett linguistic and cultural knowledge*
 
 **Document Classification:** Internal — Knowledge Keeper Use  
 **Effective Date:** 28 June 2026  
@@ -28,6 +28,73 @@
 13. [Sacred Content Classification Guide](#13-sacred-content-classification-guide)
 14. [Quality Standards for PhD-Level Documentation](#14-quality-standards-for-phd-level-documentation)
 15. [Appendix: Sample Completed Entries](#15-appendix-sample-completed-entries)
+
+**→ Start here:** [Quick Start — Your First Session](#quick-start--your-first-session)
+
+---
+
+## Quick Start — Your First Session
+
+*For Sharente and family beginning systematic knowledge input today.*
+
+This section distills the full guide into a practical first session. Read Sections 1–2 for epistemological grounding; return to detailed sections as you deepen the archive.
+
+### Before You Begin (5 minutes)
+
+1. Log into the Admin Portal at `http://localhost:3000` (or your deployed URL)
+2. Open **Contributions** → acknowledge all **Twelve Cultural Protocols**
+3. Keep this guide open beside the Lexicon Editor
+
+### Session 1: Document One Word Completely (30–45 minutes)
+
+**Recommended first word:** a greeting or kinship term you know deeply (e.g., *Wunnegan*, *Sharente*).
+
+| Step | Dashboard Location | What to Do |
+|------|-------------------|------------|
+| 1 | **Lexicon Editor → Core** | Enter Narragansett word, English gloss, category, semantic domain |
+| 2 | **Lexicon Editor → Core** | Add alternate spellings and one orthographic variant |
+| 3 | **Lexicon Editor → Linguistic** | Add phonemic or IPA transcription if known; morpheme notes optional |
+| 4 | **Lexicon Editor → Cultural** | Write cultural context summary; check seasonal usage if applicable |
+| 5 | **Lexicon Editor → Cultural** | Add one **Cultural Context** entry (Mother Earth or ceremony type) |
+| 6 | **Lexicon Editor → Governance** | Set primary speaker (yourself or the elder who taught you); visibility `clan` |
+| 7 | **Save** | Entry enters approval workflow |
+
+### Session 2: Record the Living Voice (20 minutes)
+
+| Step | Dashboard Location | What to Do |
+|------|-------------------|------------|
+| 1 | **Audio Studio** | Select **speaker attribution** (whose voice — required) |
+| 2 | **Audio Studio** | Set recording context (e.g., "Formal lesson with Grandmother Comus") |
+| 3 | **Audio Studio** | Record → review waveform → upload |
+| 4 | **Approvals** | Elder reviews when ready |
+
+### Session 3: Anchor to Land (optional, 15 minutes)
+
+If the word connects to a place:
+
+1. Add ecological connection in Lexicon Editor → Cultural tab
+2. Later: add a **Land Knowledge** site via API or Supabase (see Section 7)
+
+### Daily Rhythm (Ongoing)
+
+| Day | Focus | Target |
+|-----|-------|--------|
+| Mon–Wed | Lexicon entries | 3–5 words with full metadata |
+| Thu | Audio | 1–2 speaker-attributed recordings |
+| Fri | Review | Check Approvals queue; correct pending items |
+
+### When to Stop and Consult an Elder
+
+- Any word used in **ceremony or prayer**
+- Uncertainty about **visibility** (public vs. clan vs. sacred)
+- **Kinship terms** with Two-Spirit dimensions
+- Anything that "feels restricted" — mark `requires_elder_review`
+
+### Field Priority (If Time Is Limited)
+
+Minimum viable entry: `word_narragansett` + `english_gloss` + `cultural_context_summary` + `primary_speaker_id` + `visibility`
+
+Scholarly complete entry: all Core + Linguistic + one Cultural Context + Governance + one audio recording
 
 ---
 

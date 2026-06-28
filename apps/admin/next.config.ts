@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@kuttiomp/database", "@kuttiomp/types", "@kuttiomp/ui"],
+  transpilePackages: ["@kuttiomp/database", "@kuttiomp/types", "@kuttiomp/ui", "@kuttiomp/validation"],
   images: {
     remotePatterns: [
       {
