@@ -1,21 +1,21 @@
 import { AcademicHeader } from "@kuttiomp/ui";
+import { ApiStatusMessage } from "@/components/data/api-status-message";
 import { ClanTreeVisual } from "@/components/speakers/clan-tree-visual";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { serverApiFetch } from "@/lib/server-api";
 
-async function getSpeakerTree() {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/speakers/tree`,
-      { next: { revalidate: 60 } }
-    );
-    if (!res.ok) return getFallbackTree();
-    return res.json();
-  } catch {
-    return getFallbackTree();
-  }
+interface TreeNode {
+  id: string;
+  display_name: string;
+  role: string;
+  generation?: string;
+  is_elder?: boolean;
+  is_two_spirit?: boolean;
+  cultural_authority?: string;
+  children?: TreeNode[];
 }
 
-function getFallbackTree() {
+function getFallbackTree(): TreeNode[] {
   return [
     {
       id: "b0000000-0000-0000-0000-000000000001",
@@ -74,7 +74,9 @@ function getFallbackTree() {
 }
 
 export default async function ClanTreePage() {
-  const tree = await getSpeakerTree();
+  const result = await serverApiFetch<TreeNode[]>("/api/v1/speakers/tree", { revalidate: 60 });
+  const tree = result.ok ? result.data : null;
+  const usingFallback = !result.ok;
 
   return (
     <>
@@ -83,13 +85,24 @@ export default async function ClanTreePage() {
         title="Clan Speaker Tree"
         subtitle="Visual representation of generational knowledge flow from Elders through Sharente, parents, siblings, and clan members. Every branch carries attributed voice and cultural authority."
       />
-      <div className="p-8">
+      <div className="p-8 space-y-4">
+        {usingFallback && (
+          <ApiStatusMessage
+            title="Showing reference clan tree"
+            message={`${result.message} Displaying seeded fallback data until the API connection is restored.`}
+            variant="unreachable"
+          />
+        )}
         <Card>
           <CardHeader>
             <CardTitle className="font-serif text-lg">Kuttiomp Family Clan</CardTitle>
           </CardHeader>
           <CardContent>
-            <ClanTreeVisual nodes={tree} clanName="Kuttiomp Clan — Turtle" />
+            <ClanTreeVisual
+              nodes={tree && tree.length > 0 ? tree : getFallbackTree()}
+              clanName="Kuttiomp Clan — Turtle"
+              apiUnavailable={usingFallback}
+            />
           </CardContent>
         </Card>
       </div>

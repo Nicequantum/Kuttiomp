@@ -1,20 +1,9 @@
 import { Header } from "@/components/layout/header";
+import { ApiStatusMessage } from "@/components/data/api-status-message";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { serverApiFetch } from "@/lib/server-api";
 import type { Clan } from "@kuttiomp/database";
-
-async function getClans(): Promise<Clan[]> {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/clans`,
-      { next: { revalidate: 60 } }
-    );
-    if (!res.ok) return getFallbackClans();
-    return res.json();
-  } catch {
-    return getFallbackClans();
-  }
-}
 
 function getFallbackClans(): Clan[] {
   return [
@@ -35,7 +24,9 @@ function getFallbackClans(): Clan[] {
 }
 
 export default async function ClansPage() {
-  const clans = await getClans();
+  const result = await serverApiFetch<Clan[]>("/api/v1/clans", { revalidate: 60 });
+  const clans = result.ok ? result.data : getFallbackClans();
+  const usingFallback = !result.ok;
 
   return (
     <>
@@ -44,6 +35,13 @@ export default async function ClansPage() {
         description="Clan structure and cultural associations"
       />
       <div className="p-8 space-y-6">
+        {usingFallback && (
+          <ApiStatusMessage
+            title="Showing reference clan data"
+            message={`${result.message} Displaying fallback data until the API connection is restored.`}
+            variant="unreachable"
+          />
+        )}
         {clans.map((clan) => (
           <Card key={clan.id}>
             <CardHeader>

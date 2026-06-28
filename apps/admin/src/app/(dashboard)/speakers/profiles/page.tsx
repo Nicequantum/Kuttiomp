@@ -1,22 +1,11 @@
 import { AcademicHeader } from "@kuttiomp/ui";
+import { ApiStatusMessage } from "@/components/data/api-status-message";
 import { SpeakerCard } from "@/components/speakers/speaker-card";
+import { serverApiFetch } from "@/lib/server-api";
 import type { Speaker } from "@kuttiomp/types";
 
-async function getSpeakers(): Promise<Speaker[]> {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/speakers`,
-      { next: { revalidate: 60 } }
-    );
-    if (!res.ok) return [];
-    return res.json();
-  } catch {
-    return [];
-  }
-}
-
 export default async function SpeakerProfilesPage() {
-  const speakers = await getSpeakers();
+  const result = await serverApiFetch<Speaker[]>("/api/v1/speakers", { revalidate: 60 });
 
   return (
     <>
@@ -26,12 +15,20 @@ export default async function SpeakerProfilesPage() {
         subtitle="Each profile documents clan affiliation, generational status, gender expression, voice characteristics, and cultural authority level."
       />
       <div className="p-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {speakers.length === 0 ? (
-          <p className="text-sm text-muted-foreground col-span-full">
-            No speakers loaded. Apply database migrations and ensure API is running.
-          </p>
+        {!result.ok ? (
+          <ApiStatusMessage
+            title="Speakers could not be loaded"
+            message={result.message}
+            variant="unreachable"
+          />
+        ) : result.data.length === 0 ? (
+          <ApiStatusMessage
+            title="No speaker profiles yet"
+            message="The database has no speaker records. Add Knowledge Keepers via the API or Supabase when ready."
+            variant="empty"
+          />
         ) : (
-          speakers.map((speaker) => (
+          result.data.map((speaker) => (
             <SpeakerCard key={speaker.id} speaker={speaker} />
           ))
         )}

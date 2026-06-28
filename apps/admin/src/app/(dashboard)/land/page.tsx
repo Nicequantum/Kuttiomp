@@ -1,23 +1,23 @@
 import { AcademicHeader } from "@kuttiomp/ui";
+import { ApiStatusMessage } from "@/components/data/api-status-message";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
+import { serverApiFetch } from "@/lib/server-api";
 
-async function getLandSites() {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/land/sites`,
-      { next: { revalidate: 120 } }
-    );
-    if (!res.ok) return [];
-    return res.json();
-  } catch {
-    return [];
-  }
+interface LandSite {
+  id: string;
+  name_narragansett: string;
+  name_english: string | null;
+  site_type: string;
+  ecological_zone: string | null;
+  cultural_significance: string | null;
+  visibility: string;
 }
 
 export default async function LandKnowledgePage() {
-  const sites = await getLandSites();
+  const result = await serverApiFetch<LandSite[]>("/api/v1/land/sites", { revalidate: 120 });
+  const sites = result.ok ? result.data : [];
 
   return (
     <>
@@ -27,25 +27,23 @@ export default async function LandKnowledgePage() {
         subtitle="Geographic anchoring of linguistic and cultural knowledge using PostGIS. Language is inseparable from place."
       />
       <div className="p-8 space-y-4">
-        {sites.length === 0 ? (
+        {!result.ok ? (
+          <ApiStatusMessage
+            title="Land knowledge sites could not be loaded"
+            message={result.message}
+            variant="unreachable"
+          />
+        ) : sites.length === 0 ? (
           <Card>
             <CardContent className="pt-6 flex items-center gap-3 text-muted-foreground">
               <MapPin className="h-5 w-5" />
               <p className="text-sm">
-                No land knowledge sites yet. Apply migration 002 and add sites via API or Supabase.
+                No land knowledge sites yet. Add sites via the Lexicon Editor, API, or Supabase when ready.
               </p>
             </CardContent>
           </Card>
         ) : (
-          sites.map((site: {
-            id: string;
-            name_narragansett: string;
-            name_english: string | null;
-            site_type: string;
-            ecological_zone: string | null;
-            cultural_significance: string | null;
-            visibility: string;
-          }) => (
+          sites.map((site) => (
             <Card key={site.id}>
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">

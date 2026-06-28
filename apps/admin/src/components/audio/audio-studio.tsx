@@ -17,6 +17,7 @@ import type { Speaker } from "@kuttiomp/types";
 interface AudioStudioProps {
   speakers: Speaker[];
   lexicalEntryId?: string;
+  apiReachable?: boolean;
 }
 
 const CONTEXT_TAGS = [
@@ -26,7 +27,7 @@ const CONTEXT_TAGS = [
 
 const STEPS = ["Attribution", "Record", "Review & Upload"];
 
-export function AudioStudio({ speakers, lexicalEntryId }: AudioStudioProps) {
+export function AudioStudio({ speakers, lexicalEntryId, apiReachable = true }: AudioStudioProps) {
   const [step, setStep] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [hasRecording, setHasRecording] = useState(false);
@@ -209,7 +210,11 @@ export function AudioStudio({ speakers, lexicalEntryId }: AudioStudioProps) {
                 <SelectTrigger><SelectValue placeholder="Select Knowledge Keeper" /></SelectTrigger>
                 <SelectContent>
                   {speakers.length === 0 ? (
-                    <SelectItem value="_none" disabled>No speakers — apply migrations</SelectItem>
+                    <SelectItem value="_none" disabled>
+                      {apiReachable
+                        ? "No speakers in database yet"
+                        : "Speakers unavailable — check API connection"}
+                    </SelectItem>
                   ) : speakers.map((s) => (
                     <SelectItem key={s.id} value={s.id}>
                       {s.display_name} — {s.role}{s.is_elder ? " (Elder)" : ""}

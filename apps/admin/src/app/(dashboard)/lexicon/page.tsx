@@ -1,21 +1,10 @@
 import { Header } from "@/components/layout/header";
+import { ApiStatusMessage } from "@/components/data/api-status-message";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { serverApiFetch } from "@/lib/server-api";
 import type { LexicalEntry } from "@kuttiomp/database";
-
-async function getLexicon(): Promise<LexicalEntry[]> {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/lexicon`,
-      { next: { revalidate: 60 } }
-    );
-    if (!res.ok) return getFallbackLexicon();
-    return res.json();
-  } catch {
-    return getFallbackLexicon();
-  }
-}
 
 const FALLBACK_LEXICAL_DEFAULTS: Omit<
   LexicalEntry,
@@ -98,7 +87,9 @@ function getFallbackLexicon(): LexicalEntry[] {
 }
 
 export default async function LexiconPage() {
-  const entries = await getLexicon();
+  const result = await serverApiFetch<LexicalEntry[]>("/api/v1/lexicon", { revalidate: 60 });
+  const entries = result.ok ? result.data : getFallbackLexicon();
+  const usingFallback = !result.ok;
 
   return (
     <>
@@ -107,10 +98,24 @@ export default async function LexiconPage() {
         description="Narragansett words and phrases with cultural context"
       />
       <div className="p-8 space-y-6">
+        {usingFallback && (
+          <ApiStatusMessage
+            title="Showing sample lexicon entries"
+            message={`${result.message} Displaying reference entries until the API connection is restored.`}
+            variant="unreachable"
+          />
+        )}
         <Input placeholder="Search words in Narragansett or English..." className="max-w-md" />
 
         <div className="grid gap-4">
-          {entries.map((entry) => (
+          {entries.length === 0 ? (
+            <ApiStatusMessage
+              title="No lexical entries yet"
+              message="The lexicon is empty. Create your first entry in the Lexicon Editor."
+              variant="empty"
+            />
+          ) : (
+          entries.map((entry) => (
             <Card key={entry.id}>
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
@@ -135,7 +140,8 @@ export default async function LexiconPage() {
                 </CardContent>
               )}
             </Card>
-          ))}
+          ))
+          )}
         </div>
       </div>
     </>

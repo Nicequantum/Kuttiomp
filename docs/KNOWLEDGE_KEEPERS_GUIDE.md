@@ -41,7 +41,7 @@ This section distills the full guide into a practical first session. Read Sectio
 
 ### Before You Begin (5 minutes)
 
-1. Log into the Admin Portal at `http://localhost:3000` (or your deployed URL)
+1. Log into the Admin Portal at [https://kuttiomp-admin.vercel.app/](https://kuttiomp-admin.vercel.app/)
 2. Open **Contributions** → acknowledge all **Twelve Cultural Protocols**
 3. Keep this guide open beside the Lexicon Editor
 

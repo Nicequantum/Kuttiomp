@@ -99,13 +99,16 @@ function ClanLegend() {
 interface ClanTreeVisualProps {
   nodes: TreeNode[];
   clanName?: string;
+  apiUnavailable?: boolean;
 }
 
-export function ClanTreeVisual({ nodes, clanName }: ClanTreeVisualProps) {
+export function ClanTreeVisual({ nodes, clanName, apiUnavailable }: ClanTreeVisualProps) {
   if (nodes.length === 0) {
     return (
       <p className="text-sm text-stone-500 py-8 text-center">
-        Clan tree unavailable. Ensure API is running and migrations are applied.
+        {apiUnavailable
+          ? "Clan tree data is unavailable. Check the API connection for this deployment."
+          : "No speakers are in the clan tree yet."}
       </p>
     );
   }

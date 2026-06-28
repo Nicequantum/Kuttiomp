@@ -151,7 +151,7 @@ export function LexiconEditor({ entry, speakers = [], onSaved }: LexiconEditorPr
       });
       onSaved?.(result as LexicalEntry);
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : "Save failed. Ensure API is running and migrations are applied.";
+      const msg = err instanceof ApiError ? err.message : "Save failed. Check that the Kuttiomp API is reachable from this deployment.";
       setFeedback({ type: "error", message: msg });
     } finally {
       setSaving(false);
