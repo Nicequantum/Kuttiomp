@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build
+.next/
+out/
+dist/
+build/
+*.egg-info/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Environment (credentials stay local — GitHub blocks secret pushes)
+.env
+.env.local
+.env.*.local
+apps/api/.env
+apps/admin/.env
+
+# Turbo
+.turbo/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+.pytest_cache/
+htmlcov/
+
+# Logs
+*.log
+npm-debug.log*
+
+# TypeScript
+*.tsbuildinfo
+
+# Python
+.mypy_cache/
+.ruff_cache/
+
+# Audio uploads (local dev)
+uploads/
+*.wav.tmp
+
+# MCP (local tooling, not part of repo)
+mcps/

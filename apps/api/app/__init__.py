@@ -1,0 +1,1 @@
+"""Kuttiomp API — Narragansett Language Revitalization Backend."""
