@@ -17,81 +17,84 @@ async function getLexicon(): Promise<LexicalEntry[]> {
   }
 }
 
+const FALLBACK_LEXICAL_DEFAULTS: Omit<
+  LexicalEntry,
+  | "id"
+  | "word_narragansett"
+  | "word_normalized"
+  | "english_gloss"
+  | "cultural_context"
+  | "category"
+  | "visibility"
+  | "primary_speaker_id"
+> = {
+  english_gloss_extended: null,
+  alternate_spellings: [],
+  phonemic_transcription: null,
+  ipa_transcription: null,
+  morphological_breakdown: null,
+  morpheme_gloss: null,
+  etymology_notes: null,
+  etymology_source: null,
+  usage_notes: null,
+  register: null,
+  semantic_domain: "other",
+  cultural_domain_id: null,
+  ecological_connection: null,
+  seasonal_usage: [],
+  spiritual_significance: "none",
+  cultural_context_summary: null,
+  is_sacred: false,
+  is_archaic: false,
+  is_neologism: false,
+  primary_orthography_id: null,
+  approval_status: "approved",
+  approved_by: null,
+  approved_at: null,
+  created_by: null,
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+};
+
 function getFallbackLexicon(): LexicalEntry[] {
   return [
     {
+      ...FALLBACK_LEXICAL_DEFAULTS,
       id: "1",
       word_narragansett: "Wunnegan",
       word_normalized: "wunnegan",
       english_gloss: "Greeting / Good day",
-      alternate_spellings: [],
-      ipa_transcription: null,
-      morphological_breakdown: null,
-      etymology_notes: null,
-      usage_notes: null,
-      cultural_context: "A traditional greeting used to acknowledge presence and show respect.",
+      cultural_context:
+        "A traditional greeting used to acknowledge presence and show respect.",
       category: "phrase",
-      domain_id: null,
       visibility: "public",
-      is_sacred: false,
-      is_archaic: false,
       primary_speaker_id: "b0000000-0000-0000-0000-000000000001",
-      approval_status: "approved",
-      approved_by: null,
-      approved_at: null,
-      created_by: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     },
     {
+      ...FALLBACK_LEXICAL_DEFAULTS,
       id: "2",
       word_narragansett: "Sharente",
       word_normalized: "sharente",
       english_gloss: "Two-Spirit person",
-      alternate_spellings: [],
-      ipa_transcription: null,
-      morphological_breakdown: null,
-      etymology_notes: null,
-      usage_notes: null,
-      cultural_context: "Honors the sacred Two-Spirit role in Narragansett culture.",
+      cultural_context:
+        "Honors the sacred Two-Spirit role in Narragansett culture.",
       category: "kinship_term",
-      domain_id: null,
       visibility: "clan",
-      is_sacred: false,
-      is_archaic: false,
       primary_speaker_id: "b0000000-0000-0000-0000-000000000003",
-      approval_status: "approved",
-      approved_by: null,
-      approved_at: null,
-      created_by: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     },
     {
+      ...FALLBACK_LEXICAL_DEFAULTS,
       id: "3",
       word_narragansett: "Kuttiomp",
       word_normalized: "kuttiomp",
       english_gloss: "Family / Home",
-      alternate_spellings: [],
-      ipa_transcription: null,
-      morphological_breakdown: null,
-      etymology_notes: null,
-      usage_notes: null,
-      cultural_context: "The gathering place for language — family and home.",
+      cultural_context:
+        "The gathering place for language — family and home.",
       category: "noun",
-      domain_id: null,
       visibility: "public",
-      is_sacred: false,
-      is_archaic: false,
       primary_speaker_id: "b0000000-0000-0000-0000-000000000001",
-      approval_status: "approved",
-      approved_by: null,
-      approved_at: null,
-      created_by: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     },
-  ] as LexicalEntry[];
+  ];
 }
 
 export default async function LexiconPage() {

@@ -68,7 +68,7 @@ export interface Clan {
   name_english: string | null;
   clan_animal: string | null;
   clan_color: string | null;
-  clan_plant: string | null;
+  clan_plant?: string | null;
   territory_description: string | null;
   cultural_notes: string | null;
   is_primary_family_clan: boolean;

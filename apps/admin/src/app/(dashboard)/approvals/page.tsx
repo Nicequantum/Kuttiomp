@@ -9,9 +9,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Check, X, Clock } from "lucide-react";
 import { api } from "@/lib/api";
 
+interface PendingAudioItem {
+  id: string;
+  recording_context: string | null;
+  quality: string;
+  speakers?: { display_name: string };
+  lexical_entries?: { word_narragansett: string };
+}
+
+interface PendingContribution {
+  id: string;
+  contribution_type: string;
+  status: string;
+  contributor?: { display_name: string };
+}
+
 export default function ApprovalsPage() {
-  const [audioPending, setAudioPending] = useState<unknown[]>([]);
-  const [contribPending, setContribPending] = useState<unknown[]>([]);
+  const [audioPending, setAudioPending] = useState<PendingAudioItem[]>([]);
+  const [contribPending, setContribPending] = useState<PendingContribution[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,8 +34,8 @@ export default function ApprovalsPage() {
       api.audio.pending().catch(() => []),
       api.contributions.pending().catch(() => []),
     ]).then(([audio, contrib]) => {
-      setAudioPending(audio as unknown[]);
-      setContribPending(contrib as unknown[]);
+      setAudioPending(audio as PendingAudioItem[]);
+      setContribPending(contrib as PendingContribution[]);
       setLoading(false);
     });
   }, []);
@@ -49,13 +64,7 @@ export default function ApprovalsPage() {
             ) : audioPending.length === 0 ? (
               <Card><CardContent className="pt-6 text-sm text-muted-foreground">No pending audio.</CardContent></Card>
             ) : (
-              audioPending.map((item: {
-                id: string;
-                recording_context: string | null;
-                quality: string;
-                speakers?: { display_name: string };
-                lexical_entries?: { word_narragansett: string };
-              }) => (
+              audioPending.map((item) => (
                 <Card key={item.id}>
                   <CardHeader className="pb-2">
                     <div className="flex justify-between items-start">
@@ -94,12 +103,7 @@ export default function ApprovalsPage() {
             {contribPending.length === 0 ? (
               <Card><CardContent className="pt-6 text-sm text-muted-foreground">No pending contributions.</CardContent></Card>
             ) : (
-              contribPending.map((c: {
-                id: string;
-                contribution_type: string;
-                status: string;
-                contributor?: { display_name: string };
-              }) => (
+              contribPending.map((c) => (
                 <Card key={c.id}>
                   <CardContent className="pt-4 flex justify-between">
                     <div>

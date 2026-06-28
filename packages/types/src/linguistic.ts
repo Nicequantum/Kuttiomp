@@ -96,6 +96,7 @@ export interface LexicalEntry {
   etymology_notes: string | null;
   etymology_source: string | null;
   usage_notes: string | null;
+  cultural_context?: string | null;
   register: string | null;
   category: LexicalCategory;
   semantic_domain: SemanticDomain;
