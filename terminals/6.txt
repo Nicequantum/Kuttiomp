@@ -1,0 +1,74 @@
+---
+pid: 22484
+cwd: "C:\Users\hombr\Documents\LanguageApp"
+command: "cd \"C:\\Users\\hombr\\Documents\\LanguageApp\"; npm run typecheck 2>&1"
+started_at: 2026-06-28T17:22:57.154Z
+running_for_ms: 13845000 
+---
+
+> kuttiomp@0.4.0 typecheck
+> turbo typecheck
+
+
+
+Attention:
+Turborepo now collects completely anonymous telemetry regarding usage.
+This information is used to shape the Turborepo roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://turborepo.dev/docs/telemetry
+
+• turbo 2.10.0
+   • Packages in scope: @kuttiomp/admin, @kuttiomp/api, @kuttiomp/config, @kuttiomp/database, @kuttiomp/types, @kuttiomp/ui, @kuttiomp/validation
+   • Running typecheck in 7 packages
+   • Remote caching disabled
+
+@kuttiomp/types:typecheck: cache miss, executing 845157866f5207ec
+@kuttiomp/validation:typecheck: cache miss, executing 6630a6d6a32dc49d
+@kuttiomp/types:build: cache miss, executing c3db869aa00d2d4c
+@kuttiomp/validation:typecheck: 
+@kuttiomp/validation:typecheck: > @kuttiomp/validation@0.4.0 typecheck
+@kuttiomp/validation:typecheck: > tsc --noEmit
+@kuttiomp/validation:typecheck: 
+@kuttiomp/types:build: 
+@kuttiomp/types:build: > @kuttiomp/types@0.4.0 build
+@kuttiomp/types:build: > tsc
+@kuttiomp/types:build: 
+@kuttiomp/types:typecheck: 
+@kuttiomp/types:typecheck: > @kuttiomp/types@0.4.0 typecheck
+@kuttiomp/types:typecheck: > tsc --noEmit
+@kuttiomp/types:typecheck: 
+@kuttiomp/database:build: cache miss, executing 830be9bb388ea207
+@kuttiomp/ui:build: cache miss, executing 81948e814169c10d
+@kuttiomp/ui:typecheck: cache miss, executing 44da0809490f5874
+@kuttiomp/database:typecheck: cache miss, executing 75ac6f7b8d431aab
+@kuttiomp/types:typecheck: npm notice
+@kuttiomp/types:typecheck: npm notice New minor version of npm available! 11.13.0 -> 11.17.0
+@kuttiomp/types:typecheck: npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.17.0
+@kuttiomp/types:typecheck: npm notice To update run: npm install -g npm@11.17.0
+@kuttiomp/types:typecheck: npm notice
+@kuttiomp/database:build: 
+@kuttiomp/database:build: > @kuttiomp/database@0.4.0 build
+@kuttiomp/database:build: > tsc
+@kuttiomp/database:build: 
+@kuttiomp/ui:build: 
+@kuttiomp/ui:build: > @kuttiomp/ui@0.4.0 build
+@kuttiomp/ui:build: > tsc
+@kuttiomp/ui:build: 
+@kuttiomp/ui:typecheck: 
+@kuttiomp/ui:typecheck: > @kuttiomp/ui@0.4.0 typecheck
+@kuttiomp/ui:typecheck: > tsc --noEmit
+@kuttiomp/ui:typecheck: 
+@kuttiomp/database:typecheck: 
+@kuttiomp/database:typecheck: > @kuttiomp/database@0.4.0 typecheck
+@kuttiomp/database:typecheck: > tsc --noEmit
+@kuttiomp/database:typecheck: 
+@kuttiomp/admin:typecheck: cache miss, executing a688763497574836
+@kuttiomp/admin:typecheck: 
+@kuttiomp/admin:typecheck: > @kuttiomp/admin@0.4.0 typecheck
+@kuttiomp/admin:typecheck: > tsc --noEmit
+@kuttiomp/admin:typecheck: 
+
+ Tasks:    8 successful, 8 total
+Cached:    0 cached, 8 total
+  Time:    11.616s 
+

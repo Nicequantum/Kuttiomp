@@ -1,0 +1,19 @@
+---
+pid: 2296
+cwd: "C:\Users\hombr\Documents\LanguageApp"
+command: "cd \"C:\\Users\\hombr\\Documents\\LanguageApp\"; npm install 2>&1 | Select-Object -Last 15"
+started_at: 2026-06-28T17:20:47.902Z
+running_for_ms: 13975005 
+---
+
+added 448 packages, and audited 456 packages in 1m
+
+151 packages are looking for funding
+  run `npm fund` for details
+
+2 moderate severity vulnerabilities
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.

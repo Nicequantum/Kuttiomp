@@ -23,7 +23,7 @@ class GrokService:
     def __init__(self) -> None:
         self.api_key = settings.grok_api_key
         self.base_url = settings.grok_api_base_url.rstrip("/")
-        self.model = "grok-2-latest"
+        self.model = "grok-3-latest"
 
     def is_configured(self) -> bool:
         return bool(self.api_key and self.api_key not in ("", "xai-your-key"))

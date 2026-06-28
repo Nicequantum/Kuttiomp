@@ -1,0 +1,19 @@
+---
+pid: 17948
+cwd: "C:\Users\hombr\Documents\LanguageApp"
+command: "Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }; Get-ChildItem -Path \"C:\\Users\\hombr\\Documents\\LanguageApp\\apps\\api\\app\" -Recurse -Filter \"__pycache__\" | Remove-Item -Recurse -Force; Start-Sleep -Seconds 2; cd \"C:\\Users\\hombr\\Documents\\LanguageApp\\apps\\api\"; .venv\\Scripts\\uvicorn.exe app.main:app --host 127.0.0.1 --port 8000"
+started_at: 2026-06-28T18:55:38.432Z
+running_for_ms: 8300000  
+---
+C:\Users\hombr\Documents\LanguageApp\apps\api\app\models\lexical_schemas.py:126: UserWarning: Field name "register" in "LexicalEntryCreateV2" shadows an attribute in parent "BaseModel"
+  class LexicalEntryCreateV2(BaseModel):
+C:\Users\hombr\Documents\LanguageApp\apps\api\app\models\lexical_schemas.py:166: UserWarning: Field name "register" in "LexicalEntryUpdateV2" shadows an attribute in parent "BaseModel"
+  class LexicalEntryUpdateV2(BaseModel):
+C:\Users\hombr\Documents\LanguageApp\apps\api\app\models\lexical_schemas.py:195: UserWarning: Field name "register" in "LexicalEntryResponseV2" shadows an attribute in parent "BaseModel"
+  class LexicalEntryResponseV2(BaseModel):
+INFO:     Started server process [5424]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 8000): [winerror 10048] only one usage of each socket address (protocol/network address/port) is normally permitted
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.

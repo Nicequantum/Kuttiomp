@@ -1,0 +1,25 @@
+---
+pid: 21392
+cwd: "C:\Users\hombr\Documents\LanguageApp"
+command: "cd \"C:\\Users\\hombr\\Documents\\LanguageApp\\apps\\api\"; .venv\\Scripts\\uvicorn.exe app.main:app --reload --port 8000"
+started_at: 2026-06-28T18:54:08.354Z
+running_for_ms: 8390008  
+---
+INFO:     Will watch for changes in these directories: ['C:\\Users\\hombr\\Documents\\LanguageApp\\apps\\api']
+C:\Users\hombr\Documents\LanguageApp\apps\api\app\models\lexical_schemas.py:126: UserWarning: Field name "register" in "LexicalEntryCreateV2" shadows an attribute in parent "BaseModel"
+  class LexicalEntryCreateV2(BaseModel):
+C:\Users\hombr\Documents\LanguageApp\apps\api\app\models\lexical_schemas.py:166: UserWarning: Field name "register" in "LexicalEntryUpdateV2" shadows an attribute in parent "BaseModel"
+  class LexicalEntryUpdateV2(BaseModel):
+C:\Users\hombr\Documents\LanguageApp\apps\api\app\models\lexical_schemas.py:195: UserWarning: Field name "register" in "LexicalEntryResponseV2" shadows an attribute in parent "BaseModel"
+  class LexicalEntryResponseV2(BaseModel):
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [13392] using WatchFiles
+C:\Users\hombr\Documents\LanguageApp\apps\api\app\models\lexical_schemas.py:126: UserWarning: Field name "register" in "LexicalEntryCreateV2" shadows an attribute in parent "BaseModel"
+  class LexicalEntryCreateV2(BaseModel):
+C:\Users\hombr\Documents\LanguageApp\apps\api\app\models\lexical_schemas.py:166: UserWarning: Field name "register" in "LexicalEntryUpdateV2" shadows an attribute in parent "BaseModel"
+  class LexicalEntryUpdateV2(BaseModel):
+C:\Users\hombr\Documents\LanguageApp\apps\api\app\models\lexical_schemas.py:195: UserWarning: Field name "register" in "LexicalEntryResponseV2" shadows an attribute in parent "BaseModel"
+  class LexicalEntryResponseV2(BaseModel):
+INFO:     Started server process [22508]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.

@@ -1,0 +1,19 @@
+---
+pid: 21788
+cwd: "C:\Users\hombr\Documents\LanguageApp"
+command: "cd \"C:\\Users\\hombr\\Documents\\LanguageApp\\apps\\api\"; .venv\\Scripts\\uvicorn.exe app.main:app --host 127.0.0.1 --port 8000"
+started_at: 2026-06-28T16:40:27.342Z
+running_for_ms: 16410009 
+---
+C:\Users\hombr\Documents\LanguageApp\apps\api\app\models\lexical_schemas.py:126: UserWarning: Field name "register" in "LexicalEntryCreateV2" shadows an attribute in parent "BaseModel"
+  class LexicalEntryCreateV2(BaseModel):
+C:\Users\hombr\Documents\LanguageApp\apps\api\app\models\lexical_schemas.py:166: UserWarning: Field name "register" in "LexicalEntryUpdateV2" shadows an attribute in parent "BaseModel"
+  class LexicalEntryUpdateV2(BaseModel):
+C:\Users\hombr\Documents\LanguageApp\apps\api\app\models\lexical_schemas.py:195: UserWarning: Field name "register" in "LexicalEntryResponseV2" shadows an attribute in parent "BaseModel"
+  class LexicalEntryResponseV2(BaseModel):
+INFO:     Started server process [17136]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:50062 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56340 - "GET /health HTTP/1.1" 200 OK

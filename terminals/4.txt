@@ -1,0 +1,34 @@
+---
+pid: 19892
+cwd: "C:\Users\hombr\Documents\LanguageApp"
+command: "cd \"C:\\Users\\hombr\\Documents\\LanguageApp\\apps\\api\"; .venv\\Scripts\\uvicorn.exe app.main:app --reload --port 8000"
+started_at: 2026-06-28T16:48:31.371Z
+running_for_ms: 15925010 
+---
+INFO:     Will watch for changes in these directories: ['C:\\Users\\hombr\\Documents\\LanguageApp\\apps\\api']
+C:\Users\hombr\Documents\LanguageApp\apps\api\app\models\lexical_schemas.py:126: UserWarning: Field name "register" in "LexicalEntryCreateV2" shadows an attribute in parent "BaseModel"
+  class LexicalEntryCreateV2(BaseModel):
+C:\Users\hombr\Documents\LanguageApp\apps\api\app\models\lexical_schemas.py:166: UserWarning: Field name "register" in "LexicalEntryUpdateV2" shadows an attribute in parent "BaseModel"
+  class LexicalEntryUpdateV2(BaseModel):
+C:\Users\hombr\Documents\LanguageApp\apps\api\app\models\lexical_schemas.py:195: UserWarning: Field name "register" in "LexicalEntryResponseV2" shadows an attribute in parent "BaseModel"
+  class LexicalEntryResponseV2(BaseModel):
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [22036] using WatchFiles
+C:\Users\hombr\Documents\LanguageApp\apps\api\app\models\lexical_schemas.py:126: UserWarning: Field name "register" in "LexicalEntryCreateV2" shadows an attribute in parent "BaseModel"
+  class LexicalEntryCreateV2(BaseModel):
+C:\Users\hombr\Documents\LanguageApp\apps\api\app\models\lexical_schemas.py:166: UserWarning: Field name "register" in "LexicalEntryUpdateV2" shadows an attribute in parent "BaseModel"
+  class LexicalEntryUpdateV2(BaseModel):
+C:\Users\hombr\Documents\LanguageApp\apps\api\app\models\lexical_schemas.py:195: UserWarning: Field name "register" in "LexicalEntryResponseV2" shadows an attribute in parent "BaseModel"
+  class LexicalEntryResponseV2(BaseModel):
+INFO:     Started server process [18984]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:54511 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62173 - "OPTIONS /api/v1/contributions/pending HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:57552 - "OPTIONS /api/v1/audio/pending HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:57552 - "OPTIONS /api/v1/contributions/pending HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:62409 - "OPTIONS /api/v1/contributions/pending HTTP/1.1" 400 Bad Request
+ WARNING:  WatchFiles detected changes in 'app\services\health.py'. Reloading...
+INFO:     127.0.0.1:57544 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57547 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57551 - "GET /health HTTP/1.1" 200 OK
