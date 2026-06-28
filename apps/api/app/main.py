@@ -74,6 +74,7 @@ app.add_middleware(
 app.include_router(health.router)
 app.include_router(grok_test.router)
 app.include_router(clans.router, prefix="/api/v1")
+app.include_router(speakers.router, prefix="/api")
 app.include_router(speakers.router, prefix="/api/v1")
 app.include_router(lexicon.router, prefix="/api/v1")
 app.include_router(audio.router, prefix="/api/v1")
