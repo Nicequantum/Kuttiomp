@@ -1,6 +1,6 @@
 # Kuttiomp Local Development Setup
 
-**Version 0.3** — Production-ready foundation
+**Version 0.4.0** — Foundation complete, ready for data population
 
 ## Automated Setup
 
@@ -24,6 +24,8 @@ The script installs Node and Python dependencies and creates `.env` files from e
 | Python | 3.11+ | FastAPI backend |
 | Supabase account | — | PostgreSQL + Storage + PostGIS |
 | Clerk account | — | Admin authentication |
+| xAI account | — | Grok API (linguistic assistance) |
+| Flutter SDK | 3.2+ | Mobile app (optional) |
 
 ---
 
@@ -41,23 +43,33 @@ cp apps/admin/.env.example apps/admin/.env
 |----------|----------------|
 | `SUPABASE_*` | Supabase Dashboard → Settings → API |
 | `CLERK_*` | Clerk Dashboard → API Keys |
-| `GROK_API_KEY` | xAI Console → API Keys |
+| `GROK_API_KEY` | xAI Console → API Keys (https://console.x.ai) |
 
 **Never commit filled `.env` files** — GitHub push protection blocks secrets.
 
 ### 2. Database Migrations
 
-Apply **in order** via Supabase SQL Editor:
+Apply **in order** via Supabase SQL Editor (see [supabase/migrations/README.md](supabase/migrations/README.md)):
 
 | # | File | Purpose |
 |---|------|---------|
 | 1 | `001_initial_schema.sql` | Core tables, speakers, lexicon, audio |
 | 2 | `002_advanced_linguistic_schema.sql` | PostGIS, orthographies, cultural contexts |
 | 3 | `003_performance_indexes.sql` | Performance indexes, integrity constraints |
+| 4 | `004_final_hardening.sql` | Migration tracking, final constraints, foundation complete |
 
 Also:
 - Enable **PostGIS** extension (Database → Extensions)
 - Create storage bucket **`kuttiomp-audio`** (private, RLS enabled)
+
+Verify:
+
+```sql
+SELECT * FROM schema_migrations ORDER BY version;
+SELECT * FROM foundation_status;
+```
+
+Expected: `latest_migration = 004`, `foundation_ready = true`
 
 ### 3. Start Development
 
@@ -79,6 +91,15 @@ npm run dev
 | Admin Portal | http://localhost:3000 |
 | API Docs | http://localhost:8000/docs |
 | API Health | http://localhost:8000/health |
+| Grok Test | http://localhost:8000/api/grok/test |
+
+### 4. Mobile App (Optional)
+
+```bash
+cd apps/mobile
+flutter pub get
+flutter run --dart-define=API_BASE_URL=http://localhost:8000
+```
 
 ---
 
@@ -88,7 +109,7 @@ npm run dev
 apps/
   admin/        → Next.js 15 Knowledge Keeper Portal
   api/          → FastAPI REST Backend
-  mobile/       → Flutter scaffold (future)
+  mobile/       → Flutter scaffold (lib/models, screens, services, utils)
 packages/
   types/        → TypeScript domain types
   validation/   → Zod schemas
@@ -109,6 +130,8 @@ packages/
 | `CORS error` in browser | Origin mismatch | Set `API_CORS_ORIGINS=http://localhost:3000` in `apps/api/.env` |
 | `422 VALIDATION_ERROR` | Schema mismatch | Ensure migration 002 applied; check request body against `/docs` |
 | `500` on lexicon create | Missing columns | Apply migration 002 before 003 |
+| `503` on `/api/grok/test` | Missing Grok key | Set `GROK_API_KEY` in `apps/api/.env` |
+| `502` on `/api/grok/test` | Invalid key or xAI outage | Verify key at https://console.x.ai |
 
 ### Authentication
 
@@ -127,6 +150,8 @@ packages/
 | `relation does not exist` | Migrations applied out of order — reset and re-apply |
 | `spelling_variants` insert fails | Migration 002 not applied |
 | RLS permission denied | Backend must use `SUPABASE_SERVICE_ROLE_KEY` |
+| `schema_migrations` missing | Apply migration 004 |
+| `foundation_ready = false` | Apply all migrations 001–004 in order |
 
 ### Audio
 
@@ -157,12 +182,14 @@ packages/
 
 After setup, confirm:
 
-- [ ] http://localhost:8000/health returns `version: 0.3.0`
-- [ ] http://localhost:8000/docs shows all API tags
+- [ ] http://localhost:8000/health returns `version: 0.4.0` and `database.migrations_current: true`
+- [ ] http://localhost:8000/api/grok/test returns `status: ok` (with valid Grok key)
+- [ ] http://localhost:8000/docs shows all API tags including Grok API
 - [ ] Admin dashboard loads at http://localhost:3000
 - [ ] Clan Tree shows seeded speakers (Grandmother Comus, Sharente, etc.)
 - [ ] Lexicon Editor saves without validation errors
 - [ ] Audio Studio records and shows waveform
+- [ ] `SELECT * FROM foundation_status` shows `foundation_ready = true`
 
 ---
 

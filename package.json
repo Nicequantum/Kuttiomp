@@ -1,6 +1,6 @@
 {
   "name": "kuttiomp",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "Kuttiomp — Narragansett Language Revitalization Platform",
   "workspaces": [
@@ -13,7 +13,7 @@
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
-    "db:migrate": "echo 'Apply supabase/migrations/001, 002, 003 in order via Supabase SQL Editor'",
+    "db:migrate": "echo 'Apply supabase/migrations/001 through 004 in order via Supabase SQL Editor — see supabase/migrations/README.md'",
     "setup": "bash setup.sh"
   },
   "devDependencies": {

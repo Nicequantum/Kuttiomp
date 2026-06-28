@@ -1,26 +1,47 @@
 # Kuttiomp Mobile (Flutter)
 
-Future mobile application for field audio recording, offline lexicon access, and land-based knowledge navigation.
+**v0.4.0** — Foundation scaffold for field audio recording, offline lexicon access, and land-based knowledge navigation.
 
-## Planned Capabilities
+## Structure
 
-- Offline-first audio recording with speaker attribution
-- GPS-tagged land knowledge points (synced with PostGIS schema)
-- Clan-scoped content access
-- Elder approval queue (read-only for authorized keepers)
+```
+lib/
+├── main.dart              # App entry point
+├── models/                # Speaker, LexicalEntry
+├── screens/               # Home, Speakers, Lexicon
+├── services/              # ApiService, AudioService
+└── utils/                 # AppConstants
+```
 
-## Scaffold Status
+## Dependencies
 
-This directory is reserved for the Flutter application. Initialize when ready:
+- `http` — API client
+- `provider` — state management
+- `record` / `audioplayers` — field audio capture and playback
+- `geolocator` — land knowledge GPS tagging (future)
+- `flutter_dotenv` — environment configuration
+
+## Getting Started
 
 ```bash
 cd apps/mobile
-flutter create . --org com.kuttiomp --project-name kuttiomp_mobile
+flutter pub get
+flutter run --dart-define=API_BASE_URL=http://localhost:8000
 ```
 
-## Shared Types
+Ensure the FastAPI backend is running (`uvicorn app.main:app --reload --port 8000`).
 
-Mobile will consume API contracts documented in `packages/types` and OpenAPI spec at `/docs` on the FastAPI backend.
+## API Integration
+
+Mobile consumes the same REST API as the admin portal:
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /health` | API version and database status |
+| `GET /api/v1/speakers` | Clan speakers |
+| `GET /api/v1/lexicon` | Lexical entries |
+
+Shared types are documented in `packages/types` and the OpenAPI spec at `/docs`.
 
 ## Cultural Protocol
 

@@ -1,10 +1,10 @@
 from fastapi import APIRouter
 
-from app.models.schemas import HealthResponse
+from app.services.health import get_health
 
 router = APIRouter(tags=["Health"])
 
 
-@router.get("/health", response_model=HealthResponse)
+@router.get("/health", summary="Health check with database status")
 async def health_check():
-    return HealthResponse(status="healthy", service="kuttiomp-api", version="0.3.0")
+    return await get_health()

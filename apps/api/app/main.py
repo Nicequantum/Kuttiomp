@@ -15,6 +15,7 @@ from app.routers import (
     contributions,
     cultural,
     grok,
+    grok_test,
     health,
     land,
     lexicon,
@@ -47,7 +48,7 @@ Admin dashboard uses Clerk. Backend operations use Supabase service role.
 app = FastAPI(
     title="Kuttiomp API",
     description=API_DESCRIPTION,
-    version="0.3.0",
+    version="0.4.0",
     docs_url="/docs",
     redoc_url="/redoc",
     contact={
@@ -71,6 +72,7 @@ app.add_middleware(
 )
 
 app.include_router(health.router)
+app.include_router(grok_test.router)
 app.include_router(clans.router, prefix="/api/v1")
 app.include_router(speakers.router, prefix="/api/v1")
 app.include_router(lexicon.router, prefix="/api/v1")
@@ -104,7 +106,7 @@ app.openapi = custom_openapi
 async def root():
     return {
         "name": "Kuttiomp",
-        "version": "0.3.0",
+        "version": "0.4.0",
         "description": "Narragansett Language Revitalization Platform",
         "message": "Wunnegan — Welcome. The API is running.",
         "docs": "/docs",

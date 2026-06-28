@@ -1,10 +1,12 @@
 # Kuttiomp
 
-**v0.3 — Narragansett Language Revitalization Platform**
+**v0.4.0 — Narragansett Language Revitalization Platform**
 
 > A sacred, living language deserves sacred tooling. Kuttiomp is the gathering place where Narragansett knowledge flows through generations — from Grandmother Comus and Grandfather, through Sharente, to parents, siblings, and clan members.
 
 [![Repository](https://img.shields.io/badge/GitHub-Nicequantum%2FKuttiomp-2D5A3D)](https://github.com/Nicequantum/Kuttiomp)
+
+**Foundation phase complete.** See [FOUNDATION_COMPLETE.md](FOUNDATION_COMPLETE.md) for architecture summary and verification checklist.
 
 ---
 
@@ -20,6 +22,8 @@ Kuttiomp (*family, home, gathering place*) is a PhD-grade language revitalizatio
 | **Land knowledge (PostGIS)** | Words anchored to place |
 | **12 Cultural Protocols** | Governance encoded in schema, API, and UI |
 | **Knowledge Keeper portal** | Academic admin dashboard for systematic input |
+| **Grok AI assistance** | Learning support via dedicated `GrokService` (not ceremonial authority) |
+| **Mobile scaffold** | Flutter foundation for field recording and offline lexicon |
 
 ---
 
@@ -31,14 +35,18 @@ cd Kuttiomp
 chmod +x setup.sh && ./setup.sh
 ```
 
-Edit `.env`, `apps/api/.env`, and `apps/admin/.env` with your credentials, then apply SQL migrations in Supabase (see [SETUP.md](SETUP.md)).
+Edit `.env`, `apps/api/.env`, and `apps/admin/.env` with your credentials, then apply SQL migrations 001–004 in Supabase (see [SETUP.md](SETUP.md) and [supabase/migrations/README.md](supabase/migrations/README.md)).
 
 ```bash
 npm run dev
 ```
 
-- **Admin Portal:** http://localhost:3000
-- **API Docs:** http://localhost:8000/docs
+| Service | URL |
+|---------|-----|
+| Admin Portal | http://localhost:3000 |
+| API Docs | http://localhost:8000/docs |
+| Health Check | http://localhost:8000/health |
+| Grok Test | http://localhost:8000/api/grok/test |
 
 ---
 
@@ -48,15 +56,15 @@ npm run dev
 kuttiomp/
 ├── apps/
 │   ├── admin/          # Next.js 15 Knowledge Keeper Portal
-│   ├── api/            # FastAPI REST Backend (v0.3)
-│   └── mobile/         # Flutter scaffold (future)
+│   ├── api/            # FastAPI REST Backend (v0.4)
+│   └── mobile/         # Flutter scaffold (models, screens, services)
 ├── packages/
 │   ├── types/          # TypeScript domain types
 │   ├── validation/     # Zod schemas (shared validation rules)
 │   ├── ui/             # Shared UI components
 │   ├── database/       # Re-exports @kuttiomp/types
 │   └── config/         # Shared TS config
-├── supabase/migrations/  # 001 → 002 → 003 (apply in order)
+├── supabase/migrations/  # 001 → 004 (apply in order)
 └── docs/               # Knowledge Keeper & cultural documentation
 ```
 
@@ -69,10 +77,11 @@ kuttiomp/
 | Monorepo | Turborepo + npm workspaces |
 | Frontend | Next.js 15, TypeScript, Tailwind, shadcn/ui, Zod |
 | Backend | FastAPI, Pydantic v2, structured error responses |
+| Mobile | Flutter (HTTP, audio recording, geolocation) |
 | Database | Supabase PostgreSQL + PostGIS |
 | Auth | Clerk |
 | Storage | Supabase Storage (`kuttiomp-audio`) |
-| AI | Grok/xAI (learning assistance only) |
+| AI | Grok/xAI via `services/grok_service.py` |
 
 ---
 
@@ -80,6 +89,7 @@ kuttiomp/
 
 | Document | Audience |
 |----------|----------|
+| [FOUNDATION_COMPLETE.md](FOUNDATION_COMPLETE.md) | All — architecture summary, foundation verification |
 | [SETUP.md](SETUP.md) | Developers — installation & troubleshooting |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Contributors — cultural protocols for code |
 | [docs/KNOWLEDGE_KEEPERS_GUIDE.md](docs/KNOWLEDGE_KEEPERS_GUIDE.md) | Sharente & family — systematic knowledge input |
@@ -94,6 +104,8 @@ Base URL: `http://localhost:8000/api/v1`
 
 | Resource | Endpoints |
 |----------|-----------|
+| Health | `GET /health` (version + database status) |
+| Grok | `GET /api/grok/test` (API key verification) |
 | Speakers | `GET /speakers`, `GET /speakers/tree` |
 | Lexicon | `GET/POST/PATCH /lexicon`, sub-resources for spellings, examples, contexts |
 | Audio | `POST /audio/upload`, `GET /audio/pending` |
