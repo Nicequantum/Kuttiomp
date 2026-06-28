@@ -1,6 +1,8 @@
 # Kuttiomp
 
-**A Culturally Sacred Narragansett Language Revitalization Platform**
+**v0.2 — A Culturally Sacred Narragansett Language Revitalization Platform**
+
+> PhD-grade linguistic documentation · Twelve Cultural Governance Protocols · PostGIS land knowledge · Multi-orthography support
 
 *Wunnegan — Greetings and respect to all who come to learn.*
 
@@ -102,14 +104,20 @@ Kuttiomp is a **Turborepo monorepo** with three primary components:
 ```
 kuttiomp/
 ├── apps/
-│   ├── admin/          # Next.js 15 Admin Dashboard
-│   └── api/            # FastAPI Backend
+│   ├── admin/          # Next.js 15 Knowledge Keeper Portal
+│   ├── api/            # FastAPI REST Backend
+│   └── mobile/         # Flutter scaffold (future)
 ├── packages/
-│   └── database/       # Shared TypeScript types
+│   ├── types/          # Shared TypeScript domain types
+│   ├── ui/             # Shared UI components
+│   ├── database/       # Re-exports @kuttiomp/types
+│   └── config/         # Shared TypeScript config
 ├── supabase/
-│   └── migrations/     # PostgreSQL schema
+│   └── migrations/     # PostgreSQL + PostGIS schema
 └── docs/               # Knowledge Keeper documentation
 ```
+
+See **SETUP.md** for local development instructions.
 
 ### Technology Stack
 

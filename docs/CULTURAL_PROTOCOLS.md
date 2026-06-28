@@ -1,156 +1,226 @@
-# Cultural Protocols
+# The Twelve Cultural Governance Protocols
 
-*Governance framework for Kuttiomp content and access*
+*Version 2.0 — Effective 28 June 2026*
 
 ---
 
-## Purpose
+## Preamble
 
-This document establishes the cultural protocols that govern all content within the Kuttiomp platform. These protocols are not technical constraints alone — they reflect the values of Narragansett knowledge transmission and must be upheld by all contributors, developers, and users.
+These twelve protocols govern all content, technology, and human interaction within the Kuttiomp Narragansett Language Revitalization Platform. They are encoded in database schema constraints, API logic, admin UI workflows, and AI system prompts. They are not suggestions — they are the cultural constitution of this platform.
+
+Protocol versions are tracked in the `protocol_versions` table. Modifications require authorization from Knowledge Keepers.
 
 ---
 
 ## Protocol 1: Speaker Sovereignty
 
-**Every voice belongs to a person.**
+**Principle:** Every voice belongs to a person.
 
-- All audio recordings MUST be attributed to a specific speaker
-- No anonymous or generic voice recordings are permitted
-- The `recorded_by` field must be used when someone other than the speaker operates the recording device
+**Requirements:**
+- All audio recordings MUST have `speaker_id` (NOT NULL)
+- `recorded_by` required when operator ≠ speaker
 - Speakers may request removal of their recordings at any time
-- Deceased speakers' recordings require family authorization for any changes
+- Deceased speakers' recordings require family authorization for modification
+- No synthetic or AI-generated voices presented as speaker recordings
+
+**Database:** `audio_recordings.speaker_id`, `speakers` table
+**UI:** Audio Studio speaker selector (required field)
 
 ---
 
 ## Protocol 2: Generational Respect
 
-**Knowledge flows through generations, not around them.**
+**Principle:** Knowledge flows through generations, not around them.
 
-- Elder voices (`generation: elder`) carry primary authority for pronunciation and usage
-- Middle generation speakers (`parent`, `sharente`) bridge traditional and contemporary
-- Younger generation recordings are marked as `practice` quality unless elder-approved
-- Ancestral/archival recordings are preserved but distinguished from living speakers
+**Requirements:**
+- `generation_tier`: elder → middle → younger → ancestral
+- Elder pronunciation variants take precedence in learner display
+- Younger generation practice recordings marked `quality: practice`
+- Ancestral recordings distinguished from living speakers
+
+**Database:** `speakers.generation`, `audio_recordings.quality`
+**UI:** Clan Tree visualization by generation
 
 ---
 
 ## Protocol 3: Two-Spirit Honor
 
-**Sharente hold a sacred role that must be explicitly honored.**
+**Principle:** Sharente hold a sacred role that must be explicitly honored.
 
-- The `sharente` speaker role is distinct from all other roles
-- Two-Spirit kinship terms receive dedicated stewardship
-- Content created by Sharente requires Sharente or elder review before modification by others
-- Inclusive language evolution is guided by Sharente authority, not external assumptions
-- The `is_two_spirit` flag is applied with the speaker's consent
+**Requirements:**
+- Distinct `sharente` speaker role and `gender_expression: two_spirit`
+- `cultural_authority: sharente_keeper` for Sharente knowledge
+- Sharente or elder review before others modify Sharente content
+- Inclusive kinship terms stewarded by Sharente authority
+- `is_two_spirit` applied only with speaker consent
+
+**Database:** `speakers.role`, `speakers.gender_expression`, `speakers.cultural_authority`
+**UI:** Sharente badge, dedicated review path
 
 ---
 
 ## Protocol 4: Sacred Content Protection
 
-**Ceremonial knowledge is not educational content.**
+**Principle:** Ceremonial knowledge is not educational content.
 
-Content classified as sacred:
-- `visibility: sacred` OR `is_sacred: true`
-- Automatically receives `approval_status: requires_elder_review`
-- Is NEVER exposed through public API endpoints
-- Is NEVER included in AI training or generation context
-- Is NEVER indexed by search engines (when web-facing components are added)
-- Requires explicit elder authorization for any access beyond `elders_only`
+**Requirements:**
+- `visibility: sacred` OR `is_sacred: true` triggers `requires_elder_review`
+- Sacred content NEVER exposed via public API
+- Sacred content NEVER in AI context
+- Sacred content NEVER search-indexed
+- Requires explicit elder authorization beyond `elders_only`
 
-### What Constitutes Sacred Content
+**Sacred content includes:** ceremonial prayers, initiation language, ceremonial medicine knowledge, restricted clan teachings
 
-- Ceremonial prayers and songs
-- Initiation or rite-specific language
-- Medicine plant knowledge with ceremonial application
-- Clan-specific sacred teachings not authorized for broader sharing
-
-**When in doubt, mark content as `requires_elder_review`.**
+**When in doubt:** mark `requires_elder_review`
 
 ---
 
 ## Protocol 5: Clan Boundaries
 
-**Clan knowledge belongs to the clan.**
+**Principle:** Clan knowledge belongs to the clan.
 
-- Default visibility for new content: `clan`
-- Clan-specific teachings use `visibility: clan` or `visibility: family`
-- Cross-clan sharing requires explicit authorization from both clans' keepers
-- The primary family clan (`is_primary_family_clan: true`) seeds the initial dataset
+**Requirements:**
+- Default visibility: `clan`
+- Cross-clan sharing requires both clans' keeper authorization
+- `clan_id` on all speakers
+- Primary family clan seeds initial dataset
+
+**Database:** `clans`, `speakers.clan_id`, `content_visibility` enum
 
 ---
 
 ## Protocol 6: AI Boundaries
 
-**Artificial intelligence assists learners; it does not speak for the people.**
+**Principle:** AI assists learners; it does not speak for the people.
 
-- AI responses are marked as non-authoritative
+**Requirements:**
+- AI responses marked non-authoritative
 - AI cannot approve content
 - AI cannot access sacred content
-- AI interactions are logged in `ai_interactions` for elder review
-- AI system prompts enforce cultural protocols (see `apps/api/app/services/grok.py`)
-- No AI-generated content is published without human Knowledge Keeper review
+- All interactions logged in `ai_interactions`
+- Cultural disclaimers on all AI output
+- No AI-generated ceremonial content
+
+**Database:** `ai_interactions`, Grok system prompt in `apps/api/app/services/grok.py`
 
 ---
 
 ## Protocol 7: Audit and Accountability
 
-**All changes are traceable.**
+**Principle:** All changes are traceable.
 
-- The `audit_log` table records all content modifications
-- Actor identity (Clerk user ID and/or speaker ID) is preserved
-- Previous and new values are stored for dispute resolution
-- Cultural notes can be attached to audit entries for context
+**Requirements:**
+- `audit_log` records all content modifications
+- `knowledge_contributions` tracks submission → review → approval
+- Actor identity preserved (Clerk user + speaker ID)
+- Previous/new values stored for disputes
+- Protocol acknowledgments recorded on contributions
+
+**Database:** `audit_log`, `knowledge_contributions`
 
 ---
 
 ## Protocol 8: Pronunciation Variation
 
-**Living languages have living variation.**
+**Principle:** Living languages have living variation.
 
-- Multiple pronunciation variants per word are expected and welcomed
-- Each variant is attributed to a specific speaker
-- No variant is marked "incorrect" — dialect variation is cultural richness
-- Learners are encouraged to learn their teacher's pronunciation first
-- IPA transcriptions are supplementary, not authoritative over living voice
+**Requirements:**
+- Multiple variants per word, each speaker-attributed
+- No variant marked "incorrect"
+- `pronunciation_variants` and `spelling_variants` tables
+- Learners directed to their teacher's pronunciation first
+- IPA supplementary to living voice, not replacement
+
+**Database:** `pronunciation_variants`, `spelling_variants`
 
 ---
 
 ## Protocol 9: External Sharing
 
-**The platform's existence does not authorize external use of content.**
+**Principle:** Platform existence does not authorize external use.
 
-- Content within Kuttiomp is not automatically licensed for external use
-- Researchers must obtain separate authorization from Knowledge Keepers
-- Academic citation must name the specific speaker, not "Kuttiomp database"
-- Bulk export of content requires elder council approval
+**Requirements:**
+- Content not automatically licensed externally
+- Researchers require separate Knowledge Keeper authorization
+- Academic citation must name specific speaker
+- Bulk export requires elder council approval
+
+**Enforcement:** Governance documentation, API access controls
 
 ---
 
 ## Protocol 10: Platform Modifications
 
-**Technology changes require cultural review.**
+**Principle:** Technology changes require cultural review.
 
-- Database schema changes affecting cultural content require family review
+**Requirements:**
+- Schema changes affecting cultural content require family review
 - New visibility levels or speaker roles require elder consultation
-- AI prompt modifications require Sharente and elder review
-- No automated content ingestion without speaker attribution
+- AI prompt changes require Sharente and elder review
+- No automated ingestion without speaker attribution
+- Protocol version tracked in `protocol_versions`
 
 ---
 
-## Enforcement
+## Protocol 11: Land Relationship
 
-These protocols are enforced through:
+**Principle:** Language is inseparable from place.
 
-1. **Database design** — RLS policies, approval workflows, visibility enums
-2. **API logic** — Sacred content filtering, approval requirements
-3. **Admin UI** — Speaker attribution requirements, visibility selectors
-4. **AI system prompts** — Cultural protocol instructions
-5. **Human governance** — Elder approval queue, family oversight
+**Requirements:**
+- `land_knowledge_sites` with PostGIS `GEOGRAPHY(POINT)` locations
+- Lexical entries linkable to land sites via `lexical_land_links`
+- `ecological_connection` field on lexical entries
+- Audio recordings may reference `land_site_id`
+- Cultural narratives may anchor to land sites
+- TEK (Traditional Ecological Knowledge) documented in `cultural_contexts.tek_notes`
+
+**Database:** `land_knowledge_sites`, `lexical_land_links`, PostGIS extension
+**UI:** Land Knowledge page in admin dashboard
 
 ---
 
-## Revision
+## Protocol 12: Orthographic Integrity
 
-This document may be revised only with authorization from Knowledge Keepers (Grandmother Comus, Grandfather, Sharente, and designated family representatives).
+**Principle:** Writing systems serve speakers, not the reverse.
 
-*Last established: Project founding*
+**Requirements:**
+- Multiple orthography systems supported simultaneously
+- `orthographies` table: Costa, Jopson, IPA, community preferred, learner phonetic
+- `spelling_variants` per orthography per entry
+- No orthography imposed as sole "correct" spelling
+- Community preferred orthography flagged `is_primary`
+- Speaker-attributed spelling variants preserved
+
+**Database:** `orthographies`, `spelling_variants`
+**UI:** Lexicon Editor orthography tab (future), API `/orthographies`
+
+---
+
+## Enforcement Matrix
+
+| Protocol | Database | API | UI | AI |
+|----------|----------|-----|----|----|
+| 1 Speaker Sovereignty | ✓ | ✓ | ✓ | — |
+| 2 Generational Respect | ✓ | ✓ | ✓ | — |
+| 3 Two-Spirit Honor | ✓ | ✓ | ✓ | — |
+| 4 Sacred Content | ✓ | ✓ | ✓ | ✓ |
+| 5 Clan Boundaries | ✓ | ✓ | ✓ | — |
+| 6 AI Boundaries | ✓ | ✓ | — | ✓ |
+| 7 Audit | ✓ | ✓ | ✓ | — |
+| 8 Pronunciation | ✓ | ✓ | ✓ | — |
+| 9 External Sharing | — | — | docs | — |
+| 10 Platform Mods | ✓ | — | — | ✓ |
+| 11 Land Relationship | ✓ | ✓ | ✓ | — |
+| 12 Orthographic | ✓ | ✓ | ✓ | — |
+
+---
+
+## Revision History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0 | 2026-01-01 | Initial 10 protocols |
+| 2.0 | 2026-06-28 | Added Protocol 11 (Land Relationship), Protocol 12 (Orthographic Integrity) |
+
+*Revisions require authorization from Grandmother Comus, Grandfather, Sharente, and designated family representatives.*

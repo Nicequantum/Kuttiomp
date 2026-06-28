@@ -1,74 +1,118 @@
-import { Header } from "@/components/layout/header";
+"use client";
+
+import { useEffect, useState } from "react";
+import { AcademicHeader } from "@kuttiomp/ui";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Check, X, Clock } from "lucide-react";
+import { api } from "@/lib/api";
 
-async function getPending() {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/audio/pending`,
-      { next: { revalidate: 30 } }
-    );
-    if (!res.ok) return [];
-    return res.json();
-  } catch {
-    return [];
-  }
-}
+export default function ApprovalsPage() {
+  const [audioPending, setAudioPending] = useState<unknown[]>([]);
+  const [contribPending, setContribPending] = useState<unknown[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function ApprovalsPage() {
-  const pending = await getPending();
+  useEffect(() => {
+    Promise.all([
+      api.audio.pending().catch(() => []),
+      api.contributions.pending().catch(() => []),
+    ]).then(([audio, contrib]) => {
+      setAudioPending(audio as unknown[]);
+      setContribPending(contrib as unknown[]);
+      setLoading(false);
+    });
+  }, []);
 
   return (
     <>
-      <Header
-        title="Content Approvals"
-        description="Review pending audio and lexical content"
+      <AcademicHeader
+        eyebrow="Protocol 4 & 7"
+        title="Cultural Accuracy Approvals"
+        subtitle="Review queue for audio recordings and knowledge contributions. Sacred and ceremonial content requires elder authority."
       />
-      <div className="p-8 space-y-6">
-        <Card className="border-kuttiomp-earth/30">
-          <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">
-              Sacred and ceremonial content requires elder review. Only Knowledge
-              Keepers with appropriate authority should approve restricted content.
-            </p>
-          </CardContent>
-        </Card>
+      <div className="p-8 max-w-4xl">
+        <Tabs defaultValue="audio">
+          <TabsList>
+            <TabsTrigger value="audio">
+              Audio ({audioPending.length})
+            </TabsTrigger>
+            <TabsTrigger value="contributions">
+              Contributions ({contribPending.length})
+            </TabsTrigger>
+          </TabsList>
 
-        {pending.length === 0 ? (
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-muted-foreground">No pending approvals at this time.</p>
-            </CardContent>
-          </Card>
-        ) : (
-          pending.map((item: {
-            id: string;
-            storage_path: string;
-            recording_context: string | null;
-            speakers?: { display_name: string; role: string };
-            lexical_entries?: { word_narragansett: string };
-          }) => (
-            <Card key={item.id}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">
-                    Audio from {item.speakers?.display_name || "Unknown Speaker"}
-                  </CardTitle>
-                  <Badge variant="outline">Pending</Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground space-y-1">
-                {item.lexical_entries?.word_narragansett && (
-                  <p>Word: {item.lexical_entries.word_narragansett}</p>
-                )}
-                {item.recording_context && (
-                  <p>Context: {item.recording_context}</p>
-                )}
-                <p>Path: {item.storage_path}</p>
-              </CardContent>
-            </Card>
-          ))
-        )}
+          <TabsContent value="audio" className="space-y-4 mt-6">
+            {loading ? (
+              <p className="text-sm text-muted-foreground">Loading...</p>
+            ) : audioPending.length === 0 ? (
+              <Card><CardContent className="pt-6 text-sm text-muted-foreground">No pending audio.</CardContent></Card>
+            ) : (
+              audioPending.map((item: {
+                id: string;
+                recording_context: string | null;
+                quality: string;
+                speakers?: { display_name: string };
+                lexical_entries?: { word_narragansett: string };
+              }) => (
+                <Card key={item.id}>
+                  <CardHeader className="pb-2">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-base">
+                          {item.speakers?.display_name ?? "Unknown Speaker"}
+                        </CardTitle>
+                        {item.lexical_entries?.word_narragansett && (
+                          <p className="text-sm text-muted-foreground">
+                            Word: {item.lexical_entries.word_narragansett}
+                          </p>
+                        )}
+                      </div>
+                      <Badge variant="outline"><Clock className="h-3 w-3 mr-1" />Pending</Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="flex justify-between items-center">
+                    <p className="text-xs text-muted-foreground">
+                      {item.recording_context ?? "No context"} · {item.quality}
+                    </p>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" className="gap-1 text-emerald-800">
+                        <Check className="h-3 w-3" /> Approve
+                      </Button>
+                      <Button size="sm" variant="outline" className="gap-1 text-red-700">
+                        <X className="h-3 w-3" /> Reject
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </TabsContent>
+
+          <TabsContent value="contributions" className="space-y-4 mt-6">
+            {contribPending.length === 0 ? (
+              <Card><CardContent className="pt-6 text-sm text-muted-foreground">No pending contributions.</CardContent></Card>
+            ) : (
+              contribPending.map((c: {
+                id: string;
+                contribution_type: string;
+                status: string;
+                contributor?: { display_name: string };
+              }) => (
+                <Card key={c.id}>
+                  <CardContent className="pt-4 flex justify-between">
+                    <div>
+                      <p className="font-medium text-sm">{c.contribution_type.replace(/_/g, " ")}</p>
+                      <p className="text-xs text-muted-foreground">By {c.contributor?.display_name}</p>
+                    </div>
+                    <Badge variant="outline">{c.status}</Badge>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </>
   );

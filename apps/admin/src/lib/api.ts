@@ -11,11 +11,7 @@ export async function apiFetch<T>(
       ...options?.headers,
     },
   });
-
-  if (!res.ok) {
-    throw new Error(`API error: ${res.status} ${res.statusText}`);
-  }
-
+  if (!res.ok) throw new Error(`API error: ${res.status} ${res.statusText}`);
   return res.json();
 }
 
@@ -23,26 +19,60 @@ export const api = {
   health: () => apiFetch<{ status: string }>("/health"),
   speakers: {
     list: (params?: Record<string, string>) => {
-      const query = params ? `?${new URLSearchParams(params)}` : "";
-      return apiFetch(`/api/v1/speakers${query}`);
+      const q = params ? `?${new URLSearchParams(params)}` : "";
+      return apiFetch(`/api/v1/speakers${q}`);
     },
     tree: (clanId?: string) => {
-      const query = clanId ? `?clan_id=${clanId}` : "";
-      return apiFetch(`/api/v1/speakers/tree${query}`);
+      const q = clanId ? `?clan_id=${clanId}` : "";
+      return apiFetch(`/api/v1/speakers/tree${q}`);
     },
     get: (id: string) => apiFetch(`/api/v1/speakers/${id}`),
   },
-  clans: {
-    list: () => apiFetch("/api/v1/clans"),
-    get: (id: string) => apiFetch(`/api/v1/clans/${id}`),
-    speakers: (id: string) => apiFetch(`/api/v1/clans/${id}/speakers`),
-  },
+  clans: { list: () => apiFetch("/api/v1/clans") },
   lexicon: {
     list: (params?: Record<string, string>) => {
-      const query = params ? `?${new URLSearchParams(params)}` : "";
-      return apiFetch(`/api/v1/lexicon${query}`);
+      const q = params ? `?${new URLSearchParams(params)}` : "";
+      return apiFetch(`/api/v1/lexicon${q}`);
     },
     get: (id: string) => apiFetch(`/api/v1/lexicon/${id}`),
+    create: (data: Record<string, unknown>) =>
+      apiFetch("/api/v1/lexicon", { method: "POST", body: JSON.stringify(data) }),
+    update: (id: string, data: Record<string, unknown>) =>
+      apiFetch(`/api/v1/lexicon/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  },
+  cultural: {
+    contexts: (params?: Record<string, string>) => {
+      const q = params ? `?${new URLSearchParams(params)}` : "";
+      return apiFetch(`/api/v1/cultural/contexts${q}`);
+    },
+    narratives: () => apiFetch("/api/v1/cultural/narratives"),
+    createContext: (data: Record<string, unknown>) =>
+      apiFetch("/api/v1/cultural/contexts", { method: "POST", body: JSON.stringify(data) }),
+  },
+  land: {
+    sites: () => apiFetch("/api/v1/land/sites"),
+    get: (id: string) => apiFetch(`/api/v1/land/sites/${id}`),
+  },
+  contributions: {
+    list: (status?: string) => {
+      const q = status ? `?status=${status}` : "";
+      return apiFetch(`/api/v1/contributions${q}`);
+    },
+    pending: () => apiFetch("/api/v1/contributions/pending"),
+    submit: (data: Record<string, unknown>) =>
+      apiFetch("/api/v1/contributions", { method: "POST", body: JSON.stringify(data) }),
+    submitForReview: (id: string) =>
+      apiFetch(`/api/v1/contributions/${id}/submit`, { method: "POST" }),
+    review: (id: string, data: Record<string, unknown>) =>
+      apiFetch(`/api/v1/contributions/${id}/review`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+  },
+  orthographies: {
+    list: () => apiFetch("/api/v1/orthographies"),
+    spellings: (entryId: string) =>
+      apiFetch(`/api/v1/orthographies/${entryId}/spellings`),
   },
   audio: {
     pending: () => apiFetch("/api/v1/audio/pending"),
@@ -56,11 +86,7 @@ export const api = {
     },
   },
   ai: {
-    linguistic: (data: {
-      prompt_type: string;
-      text: string;
-      speaker_context_id?: string;
-    }) =>
+    linguistic: (data: { prompt_type: string; text: string }) =>
       apiFetch("/api/v1/ai/linguistic", {
         method: "POST",
         body: JSON.stringify(data),

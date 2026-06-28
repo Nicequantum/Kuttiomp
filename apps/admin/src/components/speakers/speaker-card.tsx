@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SPEAKER_ROLE_LABELS, type Speaker } from "@kuttiomp/database";
+import { SPEAKER_ROLE_LABELS, AUTHORITY_LABELS, type Speaker } from "@kuttiomp/types";
 
 interface SpeakerCardProps {
   speaker: Speaker;
@@ -35,9 +35,14 @@ export function SpeakerCard({ speaker }: SpeakerCardProps) {
             <Badge variant="secondary">{roleLabel}</Badge>
             <Badge variant="outline">{speaker.generation}</Badge>
           </div>
-          {speaker.cultural_title && (
+          {(speaker.cultural_title || speaker.cultural_authority) && (
             <p className="text-sm font-medium text-kuttiomp-earth">
-              {speaker.cultural_title}
+              {speaker.cultural_title || AUTHORITY_LABELS[speaker.cultural_authority]}
+            </p>
+          )}
+          {speaker.voice_description && (
+            <p className="text-xs text-muted-foreground italic">
+              Voice: {speaker.voice_description}
             </p>
           )}
           {speaker.biography && (

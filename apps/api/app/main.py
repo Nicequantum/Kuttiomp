@@ -2,7 +2,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import audio, clans, grok, health, lexicon, speakers
+from app.routers import (
+    audio,
+    clans,
+    contributions,
+    cultural,
+    grok,
+    health,
+    land,
+    lexicon,
+    orthographies,
+    speakers,
+)
 
 app = FastAPI(
     title="Kuttiomp API",
@@ -29,6 +40,10 @@ app.include_router(speakers.router, prefix="/api/v1")
 app.include_router(lexicon.router, prefix="/api/v1")
 app.include_router(audio.router, prefix="/api/v1")
 app.include_router(grok.router, prefix="/api/v1")
+app.include_router(cultural.router, prefix="/api/v1")
+app.include_router(land.router, prefix="/api/v1")
+app.include_router(contributions.router, prefix="/api/v1")
+app.include_router(orthographies.router, prefix="/api/v1")
 
 
 @app.get("/")

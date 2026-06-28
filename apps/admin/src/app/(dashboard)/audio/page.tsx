@@ -1,7 +1,7 @@
-import { Header } from "@/components/layout/header";
-import { AudioRecorder } from "@/components/audio/audio-recorder";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import type { Speaker } from "@kuttiomp/database";
+import { AcademicHeader } from "@kuttiomp/ui";
+import { AudioStudio } from "@/components/audio/audio-studio";
+import { Card, CardContent } from "@/components/ui/card";
+import type { Speaker } from "@kuttiomp/types";
 
 async function getSpeakers(): Promise<Speaker[]> {
   try {
@@ -21,21 +21,15 @@ export default async function AudioPage() {
 
   return (
     <>
-      <Header
-        title="Audio Studio"
-        description="Record and upload speaker-attributed audio"
+      <AcademicHeader
+        eyebrow="Protocol 1 & 8"
+        title="Professional Audio Studio"
+        subtitle="Speaker-attributed recording with waveform visualization, quality metadata, context tags, and elder approval workflow."
       />
-      <div className="p-8 max-w-2xl">
+      <div className="p-8 max-w-5xl">
         <Card>
-          <CardHeader>
-            <CardTitle>New Recording</CardTitle>
-            <CardDescription>
-              Every recording must be attributed to the speaker whose voice is
-              captured. Recordings require elder approval before publication.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <AudioRecorder speakers={speakers} />
+          <CardContent className="pt-6">
+            <AudioStudio speakers={speakers} />
           </CardContent>
         </Card>
       </div>

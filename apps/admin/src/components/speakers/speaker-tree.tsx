@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { SPEAKER_ROLE_LABELS } from "@kuttiomp/database";
+import { SPEAKER_ROLE_LABELS } from "@kuttiomp/types";
 
 interface TreeNode {
   id: string;
