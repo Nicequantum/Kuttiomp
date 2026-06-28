@@ -15,15 +15,11 @@ async def check_database() -> dict:
 
         migration_version = None
         try:
-            mv = (
-                supabase.table("schema_migrations")
-                .select("version")
-                .order("applied_at", desc=True)
-                .limit(1)
-                .execute()
-            )
+            mv = supabase.table("schema_migrations").select("version").execute()
             if mv.data:
-                migration_version = mv.data[0].get("version")
+                # Match foundation_status view: MAX(version), not latest applied_at.
+                # Batch-inserted rows (migration 004) share the same applied_at.
+                migration_version = max(row["version"] for row in mv.data)
         except Exception:
             migration_version = "unknown"
 
