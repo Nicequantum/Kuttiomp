@@ -219,7 +219,7 @@ class LexicalEntryResponseV2(BaseModel):
     word_normalized: str
     english_gloss: str
     english_gloss_extended: Optional[str] = None
-    alternate_spellings: list[str] = Field(default_factory=list)
+    alternate_spellings: list[str] | None = Field(default_factory=list)
     phonemic_transcription: Optional[str] = None
     ipa_transcription: Optional[str] = None
     morphological_breakdown: Optional[str] = None
