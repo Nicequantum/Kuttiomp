@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BookOpen, Home, Mic, Users, TreePine, Sparkles, Shield,
-  MapPin, FileEdit, GitBranch, ScrollText,
+  MapPin, FileEdit, GitBranch, ScrollText, Upload,
 } from "lucide-react";
 import { KuttiompBrand } from "@kuttiomp/ui";
 import { cn } from "@/lib/utils";
@@ -23,6 +23,7 @@ const navigation = [
   { name: "Clans", href: "/clans", icon: TreePine },
   { name: "Lexicon", href: "/lexicon", icon: BookOpen },
   { name: "Lexicon Editor", href: "/lexicon/editor", icon: FileEdit },
+  { name: "Seed / Import", href: "/import", icon: Upload },
   { name: "Audio Studio", href: "/audio", icon: Mic },
   { name: "Land Knowledge", href: "/land", icon: MapPin },
   { name: "Contributions", href: "/contributions", icon: Shield },

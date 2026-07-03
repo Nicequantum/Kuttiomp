@@ -27,6 +27,9 @@ export const api = {
       apiFetch("/api/v1/lexicon", { method: "POST", body: JSON.stringify(data) }),
     update: (id: string, data: Partial<LexicalEntryForm>) =>
       apiFetch(`/api/v1/lexicon/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+    bulkImport: (entries: Record<string, unknown>[]) =>
+      apiFetch("/api/v1/lexicon/bulk", { method: "POST", body: JSON.stringify(entries) }),
+    bulkUpload: (formData: FormData) => apiUpload("/api/v1/lexicon/bulk", formData),
   },
   cultural: {
     contexts: (params?: Record<string, string>) => {

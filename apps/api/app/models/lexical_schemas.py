@@ -192,6 +192,27 @@ class LexicalEntryUpdateV2(BaseModel):
     approval_status: Optional[ApprovalStatus] = None
 
 
+class BulkLexicalEntryInput(LexicalEntryCreateV2):
+    land_site_id: Optional[UUID] = None
+    speaker_ids: list[UUID] = Field(default_factory=list)
+
+
+class BulkImportRowResult(BaseModel):
+    index: int
+    word_narragansett: str
+    status: str
+    entry_id: Optional[UUID] = None
+    error: Optional[str] = None
+
+
+class BulkImportResponse(BaseModel):
+    total: int
+    approved: int
+    requires_elder_review: int
+    failed: int
+    results: list[BulkImportRowResult]
+
+
 class LexicalEntryResponseV2(BaseModel):
     id: UUID
     word_narragansett: str

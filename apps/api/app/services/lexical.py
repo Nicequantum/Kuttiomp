@@ -2,7 +2,15 @@ from uuid import UUID
 
 from app.database import get_supabase
 from app.exceptions import NotFoundError, ValidationFailedError
-from app.models.lexical_schemas import LexicalEntryCreateV2, LexicalEntryUpdateV2
+from pydantic import ValidationError
+
+from app.models.lexical_schemas import (
+    BulkImportResponse,
+    BulkImportRowResult,
+    BulkLexicalEntryInput,
+    LexicalEntryCreateV2,
+    LexicalEntryUpdateV2,
+)
 
 UUID_FIELDS = (
     "domain_id", "primary_speaker_id", "primary_orthography_id", "created_by"
@@ -91,6 +99,77 @@ def update_lexical_entry(entry_id: UUID, update: LexicalEntryUpdateV2) -> dict:
     if not result.data:
         raise NotFoundError("Lexical entry", str(entry_id))
     return result.data[0]
+
+
+def _link_land_site(entry_id: str, land_site_id: UUID) -> None:
+    supabase = get_supabase()
+    supabase.table("lexical_land_links").insert({
+        "lexical_entry_id": entry_id,
+        "land_site_id": str(land_site_id),
+    }).execute()
+
+
+def bulk_create_lexical_entries(entries: list[BulkLexicalEntryInput]) -> BulkImportResponse:
+    results: list[BulkImportRowResult] = []
+    approved = 0
+    requires_elder_review = 0
+    failed = 0
+
+    for index, raw in enumerate(entries):
+        word = raw.word_narragansett if hasattr(raw, "word_narragansett") else ""
+        try:
+            if isinstance(raw, dict):
+                entry = BulkLexicalEntryInput.model_validate(raw)
+            else:
+                entry = raw
+            word = entry.word_narragansett
+
+            if not entry.primary_speaker_id and entry.speaker_ids:
+                entry = entry.model_copy(update={"primary_speaker_id": entry.speaker_ids[0]})
+
+            land_site_id = entry.land_site_id
+            create_data = entry.model_dump(exclude={"land_site_id", "speaker_ids"})
+            created = create_lexical_entry(LexicalEntryCreateV2.model_validate(create_data))
+
+            if land_site_id:
+                _link_land_site(created["id"], land_site_id)
+
+            status = created.get("approval_status", "pending")
+            if status == "requires_elder_review":
+                requires_elder_review += 1
+            else:
+                approved += 1
+
+            results.append(BulkImportRowResult(
+                index=index,
+                word_narragansett=word,
+                status=status,
+                entry_id=created["id"],
+            ))
+        except ValidationError as e:
+            failed += 1
+            results.append(BulkImportRowResult(
+                index=index,
+                word_narragansett=word or f"row-{index}",
+                status="error",
+                error=str(e.errors()[0]["msg"]) if e.errors() else str(e),
+            ))
+        except Exception as e:
+            failed += 1
+            results.append(BulkImportRowResult(
+                index=index,
+                word_narragansett=word or f"row-{index}",
+                status="error",
+                error=str(e),
+            ))
+
+    return BulkImportResponse(
+        total=len(entries),
+        approved=approved,
+        requires_elder_review=requires_elder_review,
+        failed=failed,
+        results=results,
+    )
 
 
 def get_lexical_entry(entry_id: UUID) -> dict:

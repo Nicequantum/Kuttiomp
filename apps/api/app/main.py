@@ -1,9 +1,12 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 
 from app.config import settings
+from app.database import get_supabase
 from app.exceptions import (
     KuttiompAPIError,
     kuttiomp_exception_handler,
@@ -45,12 +48,26 @@ Admin dashboard uses Clerk. Backend operations use Supabase service role.
 - **Contributions** — Knowledge Keeper submission workflow
 """
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    if not settings.supabase_service_role_key or not settings.grok_api_key:
+        raise ValueError("Missing SUPABASE_SERVICE_ROLE_KEY or GROK_API_KEY")
+    try:
+        supabase = get_supabase()
+        supabase.table("foundation_status").select("foundation_ready").execute()
+    except Exception as e:
+        print(f"⚠️  DB warning on startup: {e}")
+    yield
+
+
 app = FastAPI(
     title="Kuttiomp API",
     description=API_DESCRIPTION,
     version="0.4.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
     contact={
         "name": "Kuttiomp — Narragansett Language Revitalization",
         "url": "https://github.com/Nicequantum/Kuttiomp",
