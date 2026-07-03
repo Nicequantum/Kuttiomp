@@ -247,9 +247,5 @@ class LexicalEntryResponseV2(BaseModel):
     created_by: Optional[UUID] = None
     created_at: datetime
     updated_at: datetime
-    @field_validator("alternate_spellings", mode="before")
-        @classmethod
-        def coerce_alternate_spellings(cls, v: list[str] | None) -> list[str]:
-            return v if v is not None else []
    
     model_config = {"extra": "ignore"}
