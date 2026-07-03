@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class SemanticDomain(str, Enum):
@@ -248,4 +248,9 @@ class LexicalEntryResponseV2(BaseModel):
     created_at: datetime
     updated_at: datetime
 
+@field_validator("alternate_spellings", mode="before")
+    @classmethod
+    def coerce_alternate_spellings(cls, v: list[str] | None) -> list[str]:
+        return v if v is not None else []
+   
     model_config = {"extra": "ignore"}
