@@ -1,0 +1,1 @@
+export 'domain/search_providers.dart';
