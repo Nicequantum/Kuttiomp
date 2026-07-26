@@ -102,8 +102,12 @@ class AuditedSupabaseClient {
         ..operation = entry.operation
         ..outcome = entry.outcome
         ..payloadSummary = entry.payloadSummary;
-      await isar.writeTxn(() async {
-        await isar.isarAuditLogEntrys.put(isarEntry);
+      await isar.writeAsync((isar) {
+        final col = isar.isarAuditLogEntrys;
+        if (isarEntry.id == 0) {
+          isarEntry.id = col.autoIncrement();
+        }
+        col.put(isarEntry);
       });
     }
   }

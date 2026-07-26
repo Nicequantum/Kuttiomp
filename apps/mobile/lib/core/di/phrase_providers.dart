@@ -48,20 +48,21 @@ final phraseDashboardFilterProvider = Provider<PhraseFilter>((ref) {
   return PhraseFilter(mode: mode, canonicalStage: mastery.canonicalStage);
 });
 
+/// Keeps dashboard wiring assertions warm when mode changes (no cycle with list).
 final phraseModeChangeListenerProvider = Provider<void>((ref) {
   ref.listen(modeControllerProvider, (previous, next) {
     final mode = next.valueOrNull;
     if (mode == null) return;
     _assertPhraseDashboardWire(ref, mode);
-    ref.invalidate(phraseListProvider);
   });
 });
 
 final phraseSearchQueryProvider = StateProvider<String>((ref) => '');
 final phraseCategoryProvider = StateProvider<String?>((ref) => null);
 
-final phraseListProvider = FutureProvider.autoDispose<List<PhraseModel>>((ref) async {
-  ref.watch(phraseModeChangeListenerProvider);
+final phraseListProvider =
+    FutureProvider.autoDispose<List<PhraseModel>>((ref) async {
+  // Mode changes rebuild this provider via watch; no invalidate cycle.
   final dashboardFilter = ref.watch(phraseDashboardFilterProvider);
   final manualFilter = ref.watch(phraseFilterProvider);
   final query = ref.watch(phraseSearchQueryProvider);

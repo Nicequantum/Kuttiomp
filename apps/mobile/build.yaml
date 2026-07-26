@@ -1,9 +1,11 @@
 targets:
   $default:
     builders:
+      # riverpod_generator disabled while isar 4.0.0-dev.14 is pinned (analyzer conflict).
+      # Committed mode_controller.g.dart / injection.g.dart remain authoritative.
       riverpod_generator|riverpod_generator:
-        enabled: true
-      isar_generator|isar_generator:
+        enabled: false
+      isar|isar_generator:
         enabled: true
         generate_for:
           - lib/core/supabase/isar_schemas.dart

@@ -50,18 +50,33 @@ void main() {
     });
 
     test('P4 ceremonial lesson requires sacred consent context', () async {
+      // Ceremonial corpus is elder-gated (Protocol 3 + 4).
+      KuttiompProtocolService.instance.init(claims: {
+        'mode': KuttiompMode.elder.id,
+        'clan': 'kuttiomp_clan',
+        'role': 'keeper',
+        'tier': GenerationalTierBitmask.elder,
+      });
       final ceremonial = await repository.getContent('lesson-deepening-ceremony');
       expect(ceremonial.ceremonialFlag, isTrue);
       expect(ceremonial.isSacred, isTrue);
     });
 
     test('P4 sacred blocked without consent in offline mirror', () async {
+      // Elder mode + deepening stage surfaces ceremonial corpus for Protocol 4.
+      KuttiompProtocolService.instance.init(claims: {
+        'mode': KuttiompMode.elder.id,
+        'clan': 'kuttiomp_clan',
+        'role': 'keeper',
+        'tier': GenerationalTierBitmask.elder,
+      });
       final result = await repository.mirrorOffline(
         mode: KuttiompMode.elder,
+        canonicalStage: 'deepening',
         onSacredConsentRequired: ({required recordId, required sacredFlag}) async =>
             false,
       );
-      expect(result.blockedSacredCount, greaterThanOrEqualTo(0));
+      expect(result.blockedSacredCount, greaterThan(0));
       expect(
         AuditLogStore.instance.entries.any(
           (e) => e.operation.contains('sacred') || e.protocolId == '4',

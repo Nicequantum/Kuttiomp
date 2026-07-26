@@ -19,6 +19,11 @@ class ProtocolGateway {
     _protocolService.assertCompliant(protocolId, context: context);
   }
 
+  /// Protocol 2 – elder approval gate (delegates to [KuttiompProtocolService]).
+  void assertElderApproved({required dynamic context}) {
+    _protocolService.assertElderApproved(context: context);
+  }
+
   void assertAllForContent(Map<String, dynamic> content) {
     for (final protocol in KuttiompProtocol.all) {
       try {

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -66,17 +68,14 @@ class AppBootstrap {
   }) async {
     final layerLogs = <String>[];
 
-    try {
-      await dotenv.load(fileName: '.env');
-    } catch (_) {
-      // .env optional in development
-    }
+    // .env is optional: asset may be absent; desktop can load from project root.
+    final envMap = await _loadEnvMap();
 
     final resolvedFlavor = flavor ??
         const String.fromEnvironment('FLAVOR', defaultValue: '');
     final env = environment ??
         KuttiompEnvironment.fromEnv(
-          dotenv.env,
+          envMap,
           flavor: resolvedFlavor.isNotEmpty ? resolvedFlavor : null,
         );
     final effectiveEnv = env.isConfigured ? env : KuttiompEnvironment.devFallback(
@@ -257,5 +256,41 @@ class AppBootstrap {
     );
 
     return lastResult!;
+  }
+
+  /// Loads env without throwing when dotenv is not initialized (desktop / CI).
+  static Future<Map<String, String>> _loadEnvMap() async {
+    try {
+      await dotenv.load(fileName: '.env', isOptional: true);
+      return Map<String, String>.from(dotenv.env);
+    } catch (_) {
+      // Fall through to filesystem parse for Windows runners.
+    }
+
+    if (!kIsWeb) {
+      try {
+        final file = File('.env');
+        if (await file.exists()) {
+          final map = <String, String>{};
+          for (final raw in await file.readAsLines()) {
+            final line = raw.trim();
+            if (line.isEmpty || line.startsWith('#')) continue;
+            final eq = line.indexOf('=');
+            if (eq <= 0) continue;
+            final key = line.substring(0, eq).trim();
+            var value = line.substring(eq + 1).trim();
+            if ((value.startsWith('"') && value.endsWith('"')) ||
+                (value.startsWith("'") && value.endsWith("'"))) {
+              value = value.substring(1, value.length - 1);
+            }
+            map[key] = value;
+          }
+          return map;
+        }
+      } catch (_) {
+        // Offline guest path — empty env is valid.
+      }
+    }
+    return const {};
   }
 }

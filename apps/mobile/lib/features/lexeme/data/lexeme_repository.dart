@@ -130,16 +130,29 @@ class LexemeRepository extends AuditedRepository {
       _isarCollection.readOfflineForTier(tierBitmask);
 
   /// Watches lexemes for generational tier (Protocol 3).
+  ///
+  /// [tierBitmask] filters returned rows. List-level Protocol 3 uses the caller's
+  /// current mode tier so Keepers may browse age-filtered corpus without the
+  /// filter bitmask being misread as content visibility.
   Future<List<Lexeme>> watchLexemesForTier(int tierBitmask, {String? stage}) async {
+    final listGate = <String, dynamic>{
+      'visible_to_tiers': gateway.protocolService.currentTier,
+      'query_tier_filter': tierBitmask,
+      'elderApproved': true,
+      'direct_table_access': false,
+      'speaker_id': 'kuttiomp-lexeme-list',
+      'attribution_json': const {
+        'speaker_id': 'kuttiomp-lexeme-list',
+        'name': 'Lexeme repository list gate',
+      },
+      'speakerMetadata': const {
+        'speaker_id': 'kuttiomp-lexeme-list',
+        'name': 'Lexeme repository list gate',
+      },
+      'maintainability': 'lexeme_list_gate',
+    };
     for (final id in ['3', '1', '9', '12']) {
-      gateway.assertCompliant(
-        id,
-        context: {
-          'visible_to_tiers': tierBitmask,
-          'elderApproved': true,
-          'direct_table_access': false,
-        },
-      );
+      gateway.assertCompliant(id, context: listGate);
     }
     final mode = KuttiompMode.values.firstWhere(
       (m) => (m.tierBitmask & tierBitmask) != 0,

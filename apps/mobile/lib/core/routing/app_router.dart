@@ -189,7 +189,14 @@ CustomTransitionPage<void> _gatedPage({
     transitionDuration: const Duration(milliseconds: 280),
     reverseTransitionDuration: const Duration(milliseconds: 280),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return FadeScaleTransition(animation: animation, child: child);
+      // Lightweight fade+scale without animations package dependency (§5 <300ms).
+      return FadeTransition(
+        opacity: animation,
+        child: ScaleTransition(
+          scale: Tween<double>(begin: 0.98, end: 1).animate(animation),
+          child: child,
+        ),
+      );
     },
     child: _TierGatedShell(requiredTier: requiredTier, child: child),
   );

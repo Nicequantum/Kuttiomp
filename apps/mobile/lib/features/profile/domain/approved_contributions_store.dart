@@ -1,5 +1,7 @@
 import 'package:kuttiomp_mobile/features/lessons/domain/lesson.dart';
 import 'package:kuttiomp_mobile/features/lexeme/domain/lexeme.dart';
+import 'package:kuttiomp_mobile/features/lexeme/domain/lexeme_model.dart'
+    show AuthoritySource;
 import 'package:kuttiomp_mobile/features/phrases/domain/phrase.dart';
 import 'package:kuttiomp_mobile/features/profile/domain/elder_recording_model.dart';
 import 'package:kuttiomp_mobile/features/search/domain/search_result_model.dart';
@@ -43,7 +45,7 @@ class ApprovedContributionsStore {
             visibleToTiers: r.visibleToTiers,
             canonicalStage: r.canonicalStage,
             elderApproved: true,
-            authoritySource: r.authoritySource,
+            authoritySource: AuthoritySource.fromId(r.authoritySource),
           ),
         )
         .toList();

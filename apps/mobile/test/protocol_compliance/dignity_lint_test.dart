@@ -60,7 +60,12 @@ void main() {
       expect(script.existsSync(), isTrue);
       final content = script.readAsStringSync();
       expect(content, contains('Protocol 10'));
-      expect(content, contains('prohibitedTokens'));
+      expect(
+        content.contains('prohibitedTokens') ||
+            content.contains('prohibitedTypeDefinitions') ||
+            content.contains('prohibitedAssetTokens'),
+        isTrue,
+      );
     });
 
     test('lib tree contains no gamification type definitions outside guards', () {

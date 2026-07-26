@@ -3,9 +3,13 @@ import 'package:isar/isar.dart';
 part 'isar_schemas.g.dart';
 
 /// Embedded protocol metadata on every offline collection (§7, Protocols 1–12).
-@Collection()
+///
+/// Aligned to Isar 4.0.0-dev.14 API. This serves our people by keeping
+/// protocol-guarded offline mirrors compilable for 25 years of household use.
+@collection
 class ProtocolMetadata {
-  Id id = Isar.autoIncrement;
+  /// Primary key; use [IsarCollection.autoIncrement] when inserting new rows.
+  int id = 0;
 
   @Index()
   late String recordId;
@@ -24,11 +28,11 @@ class ProtocolMetadata {
 }
 
 /// Encrypted user profile mirror (§13, Protocol 9).
-@Collection()
+@collection
 class UserProfileMirror {
-  Id id = Isar.autoIncrement;
+  int id = 0;
 
-  @Index(unique: true, replace: true)
+  @Index(unique: true)
   late String userId;
 
   late String mode;
@@ -41,11 +45,11 @@ class UserProfileMirror {
 }
 
 /// Unified mastery record mirror – filtered per mode (§6).
-@Collection()
+@collection
 class UserMasteryMirror {
-  Id id = Isar.autoIncrement;
+  int id = 0;
 
-  @Index(unique: true, replace: true)
+  @Index(unique: true)
   late String userId;
 
   late String canonicalStage;
@@ -55,9 +59,9 @@ class UserMasteryMirror {
 }
 
 /// Immutable audit log persisted locally (Protocol 9).
-@Collection()
+@collection
 class IsarAuditLogEntry {
-  Id id = Isar.autoIncrement;
+  int id = 0;
 
   @Index()
   late DateTime timestamp;
@@ -67,4 +71,3 @@ class IsarAuditLogEntry {
   late String outcome;
   String? payloadSummary;
 }
-

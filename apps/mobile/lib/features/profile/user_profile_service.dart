@@ -70,7 +70,7 @@ class UserProfileService {
     if (isar == null || !isar.isOpen) return null;
 
     final userId = authService.userId;
-    final mirrors = await isar.userProfileMirrors.where().findAll();
+    final mirrors = await isar.userProfileMirrors.where().findAllAsync();
     UserProfileMirror? mirror;
     for (final m in mirrors) {
       if (m.userId == userId) {
@@ -101,7 +101,7 @@ class UserProfileService {
     if (isar == null || !isar.isOpen) return null;
 
     final userId = authService.userId;
-    final mirrors = await isar.userMasteryMirrors.where().findAll();
+    final mirrors = await isar.userMasteryMirrors.where().findAllAsync();
     UserMasteryMirror? mirror;
     for (final m in mirrors) {
       if (m.userId == userId) {
@@ -171,9 +171,17 @@ class UserProfileService {
       )
       ..lastSyncedAt = now;
 
-    await isar.writeTxn(() async {
-      await isar.userProfileMirrors.put(profileMirror);
-      await isar.userMasteryMirrors.put(masteryMirror);
+    await isar.writeAsync((isar) {
+      final profiles = isar.userProfileMirrors;
+      final masteries = isar.userMasteryMirrors;
+      if (profileMirror.id == 0) {
+        profileMirror.id = profiles.autoIncrement();
+      }
+      if (masteryMirror.id == 0) {
+        masteryMirror.id = masteries.autoIncrement();
+      }
+      profiles.put(profileMirror);
+      masteries.put(masteryMirror);
     });
 
     if (kDebugMode) {
@@ -216,8 +224,12 @@ class UserProfileService {
         ..operation = 'elder_override'
         ..outcome = 'applied'
         ..payloadSummary = 'elder=$elderId';
-      await isar.writeTxn(() async {
-        await isar.isarAuditLogEntrys.put(entry);
+      await isar.writeAsync((isar) {
+        final col = isar.isarAuditLogEntrys;
+        if (entry.id == 0) {
+          entry.id = col.autoIncrement();
+        }
+        col.put(entry);
       });
     }
 

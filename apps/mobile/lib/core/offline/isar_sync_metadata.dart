@@ -178,9 +178,14 @@ class IsarSyncMetadataRepository {
       return;
     }
 
-    await _isar!.writeTxn(() async {
+    await _isar!.writeAsync((isar) {
+      final col = isar.protocolMetadatas;
       for (final item in batch) {
-        await _isar!.protocolMetadatas.put(item.toProtocolMetadata());
+        final meta = item.toProtocolMetadata();
+        if (meta.id == 0) {
+          meta.id = col.autoIncrement();
+        }
+        col.put(meta);
       }
     });
   }
@@ -190,7 +195,7 @@ class IsarSyncMetadataRepository {
       return InMemorySyncMetadataStore.instance.all();
     }
 
-    final rows = await _isar!.protocolMetadatas.where().findAll();
+    final rows = await _isar!.protocolMetadatas.where().findAllAsync();
     return rows.map(IsarSyncMetadata.fromProtocolMetadata).toList();
   }
 }

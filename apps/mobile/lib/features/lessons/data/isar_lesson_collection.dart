@@ -185,8 +185,13 @@ class IsarLessonCollection {
   Future<void> _upsert(LessonMirrorRecord record) async {
     InMemoryLessonMirrorStore.instance.upsert(record);
     if (_isar == null || !_isar!.isOpen) return;
-    await _isar!.writeTxn(() async {
-      await _isar!.protocolMetadatas.put(record.toProtocolMetadata());
+    await _isar!.writeAsync((isar) {
+      final col = isar.protocolMetadatas;
+      final meta = record.toProtocolMetadata();
+      if (meta.id == 0) {
+        meta.id = col.autoIncrement();
+      }
+      col.put(meta);
     });
   }
 
@@ -194,7 +199,7 @@ class IsarLessonCollection {
     if (_isar == null || !_isar!.isOpen) {
       return InMemoryLessonMirrorStore.instance.all();
     }
-    final rows = await _isar!.protocolMetadatas.where().findAll();
+    final rows = await _isar!.protocolMetadatas.where().findAllAsync();
     return rows
         .where((r) => r.recordId.startsWith('lesson:'))
         .map(LessonMirrorRecord.fromProtocolMetadata)

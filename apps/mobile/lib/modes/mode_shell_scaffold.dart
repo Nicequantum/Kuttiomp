@@ -100,13 +100,7 @@ class ModeShellScaffold extends ConsumerWidget {
         button: true,
         label:
             'Switch learning mode. Long press for audio narration of all modes.',
-        child: FloatingActionButton.extended(
-          onPressed: () async {
-            final modes = KuttiompMode.values;
-            final current = ref.read(modeControllerProvider).valueOrNull ?? KuttiompMode.littleOnes;
-            final next = modes[(modes.indexOf(current) + 1) % modes.length];
-            await ref.read(modePersistenceServiceProvider).persistAndSyncMode(next, router: router);
-          },
+        child: GestureDetector(
           onLongPress: () {
             AudioNarrationService.playFirstLaunchWelcome();
             ModeSelectionBottomSheet.show(
@@ -118,8 +112,22 @@ class ModeShellScaffold extends ConsumerWidget {
                   .persistAndSyncMode(selected, router: router),
             );
           },
-          label: Text('Switch Mode', style: ext.bodyLarge.copyWith(color: Colors.white)),
-          icon: const Icon(Icons.swap_horiz),
+          child: FloatingActionButton.extended(
+            onPressed: () async {
+              final modes = KuttiompMode.values;
+              final current =
+                  ref.read(modeControllerProvider).valueOrNull ?? KuttiompMode.littleOnes;
+              final next = modes[(modes.indexOf(current) + 1) % modes.length];
+              await ref
+                  .read(modePersistenceServiceProvider)
+                  .persistAndSyncMode(next, router: router);
+            },
+            label: Text(
+              'Switch Mode',
+              style: ext.bodyLarge.copyWith(color: Colors.white),
+            ),
+            icon: const Icon(Icons.swap_horiz),
+          ),
         ),
       ),
     );

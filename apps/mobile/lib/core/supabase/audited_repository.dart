@@ -21,6 +21,9 @@ abstract class AuditedRepository {
 
   ProtocolGateway get gateway => _gateway;
 
+  /// Optional audited client; repositories may fall back to [AuditedSupabaseClient.instance].
+  AuditedSupabaseClient? get auditedClient => _auditedClient;
+
   /// Executes audited RPC with Protocol 9 enforcement.
   Future<T> auditedRpc<T>(
     String rpcName, {

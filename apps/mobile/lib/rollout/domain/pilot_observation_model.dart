@@ -91,7 +91,9 @@ class PilotObservation {
       id: json['id'] as String? ?? 'pilot-obs-unknown',
       householdId: json['household_id'] as String? ?? 'household-unknown',
       observerRole: json['observer_role'] as String? ?? 'observer',
-      mode: KuttiompMode.fromId(json['mode'] as String?),
+      mode: KuttiompMode.fromId(
+        json['mode'] as String? ?? KuttiompMode.littleOnes.id,
+      ),
       deviceType: json['device_type'] as String? ?? 'android_phone',
       journeyStep: json['journey_step'] as String? ?? 'unspecified',
       observation: json['observation'] as String? ?? '',

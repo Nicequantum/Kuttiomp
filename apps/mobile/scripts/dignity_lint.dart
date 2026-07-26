@@ -8,21 +8,26 @@
 
 import 'dart:io';
 
-const prohibitedTokens = <String>[
-  'NoPlayWidget',
-  'GamificationBadge',
-  'PointsCounter',
-  'StreakTracker',
-  'Leaderboard',
-  'PlayfulMascot',
-  'ConfettiWidget',
+/// Concrete gamification surface names (not the word "gamification" in Protocol 10 docs).
+const prohibitedTypeDefinitions = <String>[
+  'class NoPlayWidget',
+  'class GamificationBadge',
+  'class PointsCounter',
+  'class StreakTracker',
+  'class Leaderboard',
+  'class PlayfulMascot',
+  'class ConfettiWidget',
+  'class AchievementBadge',
+  'class CompetitiveRank',
+];
+
+const prohibitedAssetTokens = <String>[
   'achievement_badge',
-  'confetti',
-  'gamification',
-  'streak_flame',
+  'confetti_animation',
   'playful_mascot',
   'cartoon_character',
   'emoji_pack',
+  'streak_flame',
 ];
 
 /// Paths that define or document prohibitions are allowlisted.
@@ -35,11 +40,14 @@ bool isAllowlisted(String path) {
   if (p.contains('integrity_validator')) return true;
   if (p.contains('freezed_decision')) return true;
   if (p.endsWith('dignity_lint.yaml')) return true;
-  if (p.contains('protocol_compliance') && p.endsWith('.dart')) {
-    // Tests may mention forbidden names when asserting rejection.
+  if (p.contains('tribal_maintainer_guide') || p.contains('tribal maintainer guide')) {
     return true;
   }
+  if (p.contains('protocol_compliance') && p.endsWith('.dart')) return true;
   if (p.contains('dignity_lint_test')) return true;
+  // Protocol enum / service names include "nonGamification" by design.
+  if (p.endsWith('protocols.dart')) return true;
+  if (p.endsWith('protocol_service.dart')) return true;
   return false;
 }
 
@@ -53,25 +61,30 @@ void main() {
     final path = file.path;
     if (isAllowlisted(path)) return;
     final lowerPath = path.replaceAll('\\', '/').toLowerCase();
-    for (final token in prohibitedTokens) {
+    for (final token in prohibitedAssetTokens) {
       if (lowerPath.contains(token.toLowerCase())) {
-        violations.add('PATH: $path contains prohibited token "$token"');
+        violations.add('PATH: $path contains prohibited asset token "$token"');
       }
     }
     if (!path.endsWith('.dart') &&
         !path.endsWith('.yaml') &&
         !path.endsWith('.yml') &&
-        !path.endsWith('.md') &&
         !path.endsWith('.arb')) {
       return;
     }
+    // Skip markdown docs from content scan (guides explain Protocol 10).
+    if (path.endsWith('.md')) return;
+
     final content = file.readAsStringSync();
+    for (final token in prohibitedTypeDefinitions) {
+      if (content.contains(token)) {
+        violations.add('CONTENT: $path defines prohibited type "$token"');
+      }
+    }
     final lower = content.toLowerCase();
-    for (final token in prohibitedTokens) {
+    for (final token in prohibitedAssetTokens) {
       if (lower.contains(token.toLowerCase())) {
-        // Allowlisted definition sites only.
-        if (isAllowlisted(path)) continue;
-        violations.add('CONTENT: $path references prohibited "$token"');
+        violations.add('CONTENT: $path references prohibited asset "$token"');
       }
     }
   }

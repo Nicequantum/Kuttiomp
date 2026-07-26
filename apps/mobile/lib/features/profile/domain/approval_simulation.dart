@@ -49,17 +49,28 @@ class ApprovalSimulation extends AuditedRepository {
     );
 
     final chain = [...pending.approvalChain, keeperId];
-    final approved = pending.copyWith(
-      status: RecordingApprovalStatus.approved,
-      elderApproved: true,
-      approvedAt: DateTime.now().toUtc(),
-      approvalChain: chain,
+    final approved = ElderRecordingModel(
+      id: pending.id,
+      word: pending.word,
+      translation: pending.translation,
       speakerMetadata: {
         ...pending.speakerMetadata,
         'keeper_id': keeperId,
         'keeper_name': keeperName,
         'authority_source': 'elder',
       },
+      primaryAudioId: pending.primaryAudioId,
+      contentType: pending.contentType,
+      status: RecordingApprovalStatus.approved,
+      canonicalStage: pending.canonicalStage,
+      clanScope: pending.clanScope,
+      visibleToTiers: pending.visibleToTiers,
+      elderApproved: true,
+      authoritySource: 'elder',
+      schemaVersion: pending.schemaVersion,
+      submittedAt: pending.submittedAt,
+      approvedAt: DateTime.now().toUtc(),
+      approvalChain: chain,
     );
 
     try {

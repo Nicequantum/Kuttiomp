@@ -159,7 +159,7 @@ class _ProfilePageBodyState extends ConsumerState<_ProfilePageBody> {
                     style: OutlinedButton.styleFrom(
                       minimumSize: Size(double.infinity, ext.minimumTouchTarget),
                     ),
-                    child: Text('Change Learning Path', style: ext.bodyLarge),
+                    label: Text('Change Learning Path', style: ext.bodyLarge),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -221,7 +221,7 @@ class _ProfilePageBodyState extends ConsumerState<_ProfilePageBody> {
                         backgroundColor: ext.landAccent,
                         foregroundColor: Colors.white,
                       ),
-                      child: Text('Contribute Recording', style: ext.bodyLarge),
+                      label: Text('Contribute Recording', style: ext.bodyLarge),
                     ),
                   ),
                 ],

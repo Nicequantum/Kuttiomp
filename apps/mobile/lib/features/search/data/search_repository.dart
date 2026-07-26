@@ -353,7 +353,7 @@ class SearchRepository extends AuditedRepository {
       clanScope: lexeme.clanScope,
       visibleToTiers: lexeme.visibleToTiers,
       elderApproved: lexeme.elderApproved,
-      authoritySource: lexeme.authoritySource,
+      authoritySource: lexeme.authoritySource.id,
       landContext: lexeme.geoContext?.toJson(),
       sacredFlag: lexeme.sacredFlag,
     );

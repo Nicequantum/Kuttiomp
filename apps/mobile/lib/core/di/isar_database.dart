@@ -7,6 +7,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:kuttiomp_mobile/core/supabase/isar_schemas.dart';
 
 /// Opens encrypted Isar mirror with tribal key derivation (Protocol 4, 9).
+///
+/// Isar 4.0.0-dev.14: use [Isar.openAsync] with named `schemas:`.
+/// This serves our people by keeping offline protocol mirrors available
+/// across device generations through 2050.
 class IsarDatabase {
   IsarDatabase._();
 
@@ -15,6 +19,13 @@ class IsarDatabase {
   static Isar? get instance => _instance;
 
   static bool get isReady => _instance != null && _instance!.isOpen;
+
+  static const List<IsarGeneratedSchema> schemas = [
+    ProtocolMetadataSchema,
+    IsarAuditLogEntrySchema,
+    UserProfileMirrorSchema,
+    UserMasteryMirrorSchema,
+  ];
 
   /// Derives storage key from clan + role claims (sacred field encryption stub).
   static String deriveEncryptionKey({
@@ -38,13 +49,8 @@ class IsarDatabase {
     deriveEncryptionKey(clanId: clanId, role: role);
 
     final dir = directory ?? (await getApplicationDocumentsDirectory()).path;
-    _instance = await Isar.open(
-      [
-        ProtocolMetadataSchema,
-        IsarAuditLogEntrySchema,
-        UserProfileMirrorSchema,
-        UserMasteryMirrorSchema,
-      ],
+    _instance = await Isar.openAsync(
+      schemas: schemas,
       directory: dir,
       name: 'kuttiomp_offline_v2',
       inspector: inspector,
@@ -54,8 +60,18 @@ class IsarDatabase {
 
   static Future<void> close() async {
     if (_instance?.isOpen ?? false) {
-      await _instance!.close();
+      _instance!.close();
     }
     _instance = null;
   }
+}
+
+/// Helper: put object with auto-increment id when id == 0 (Isar 4).
+void isarPutWithAutoId<OBJ>(IsarCollection<int, OBJ> col, OBJ object) {
+  // Generated models expose `id` as int on our collections.
+  dynamic dyn = object;
+  if (dyn.id == 0) {
+    dyn.id = col.autoIncrement();
+  }
+  col.put(object);
 }

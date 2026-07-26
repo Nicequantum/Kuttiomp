@@ -7,6 +7,7 @@ library;
 export 'package:kuttiomp_mobile/shared/design_system/audio_dominant_view.dart'
     show AudioDominantView, KuttiompOralPlayButton;
 
+import 'package:flutter/material.dart';
 import 'package:kuttiomp_mobile/shared/design_system/audio_dominant_view.dart';
 
 /// Backward-compatible oral-first player used by feature cards (Protocol 7).
