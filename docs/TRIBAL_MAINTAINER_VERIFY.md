@@ -114,6 +114,28 @@ flutter test test/features/stewardship/stewardship_protocol_compliance_test.dart
 
 Confirm each uses ApprovedContentGate / oral-first player / AuthorityBadge in feature presentation layers.
 
+## Riverpod `ref.listen` hygiene (WidgetRef assertion)
+
+Red error: `ref.listen can only be used within the build method of a ConsumerWidget`
+(at `flutter_riverpod/src/consumer.dart`).
+
+Search and fix:
+
+```bash
+cd apps/mobile
+# Find every listen site
+rg "ref\.listen(Manual)?\(" lib test
+
+# Rule:
+# - WidgetRef.listen  → only inside Consumer / ConsumerStatefulWidget build()
+# - Never call WidgetRef.listen from initState, constructors, or ChangeNotifier
+# - Provider Ref.listen is valid inside provider create callbacks (not WidgetRef)
+# - Prefer ref.watch for rebuilds; use listen only for side effects (e.g. GoRouter refresh)
+```
+
+Canonical fix location: `lib/modes/mode_aware_material_app.dart` — mode → router refresh
+must use `ref.listen` inside `_ModeAwareMaterialAppState.build`, not in `_RouterRefresh()`.
+
 ## Launch prototype
 
 ```bash
@@ -125,12 +147,13 @@ flutter devices
 # Prefer Android emulator when ANDROID_HOME is set:
 # flutter run -d <device_id>
 # Desktop (if windows/ scaffolded):
-# flutter run -d windows
+flutter run -d windows
+# Confirm: no red Riverpod assertion; dashboard interactive
 ```
 
 Manual verify after launch:
 
-1. Sign-in (or guest offline) succeeds
+1. Sign-in (or guest offline) succeeds — **no** `ref.listen` red screen
 2. Stewardship summary shows absolute counts (live RPC or offline fallback)
 3. Lexemes / Phrases / Lessons load under ApprovedContentGate
 4. Oral-first player presents speaker-attributed audio

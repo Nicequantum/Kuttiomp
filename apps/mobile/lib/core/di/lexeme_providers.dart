@@ -37,14 +37,8 @@ final lexemeDashboardFilterProvider = Provider<LexemeFilter>((ref) {
   return LexemeFilter(mode: mode, canonicalStage: mastery.canonicalStage);
 });
 
-/// Keeps dashboard wiring assertions warm when mode changes (no cycle with list).
-final lexemeModeChangeListenerProvider = Provider<void>((ref) {
-  ref.listen(modeControllerProvider, (previous, next) {
-    final mode = next.valueOrNull;
-    if (mode == null) return;
-    _assertLexemeDashboardWire(ref, mode);
-  });
-});
+// Mode-change side effects: lexemeListProvider already ref.watch(modeControllerProvider)
+// and re-asserts protocol wiring on each rebuild — no separate ref.listen required.
 
 final lexemeSearchQueryProvider = StateProvider<String>((ref) => '');
 

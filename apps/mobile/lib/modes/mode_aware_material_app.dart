@@ -46,7 +46,8 @@ class _ModeAwareMaterialAppState extends ConsumerState<ModeAwareMaterialApp> {
   void initState() {
     super.initState();
     KuttiompDesignSystem.assertDignity();
-    _refresh = _RouterRefresh(ref);
+    // ChangeNotifier only — never call WidgetRef.listen here (Riverpod assertion).
+    _refresh = _RouterRefresh();
     _router = createAppRouter(
       persistence: widget.persistence,
       bootstrapStatus: widget.bootstrapStatus,
@@ -68,6 +69,12 @@ class _ModeAwareMaterialAppState extends ConsumerState<ModeAwareMaterialApp> {
     final mode = ref.watch(modeControllerProvider).valueOrNull ?? KuttiompMode.littleOnes;
     final theme = KuttiompTheme.forMode(mode);
 
+    // WidgetRef.listen is only legal inside Consumer build (fixes red assertion).
+    // GoRouter re-evaluates redirects when mode changes for tier-aware routes.
+    ref.listen(modeControllerProvider, (_, __) {
+      _refresh.notifyListeners();
+    });
+
     return MaterialApp.router(
       title: 'Kuttiomp',
       debugShowCheckedModeBanner: false,
@@ -82,15 +89,5 @@ class _ModeAwareMaterialAppState extends ConsumerState<ModeAwareMaterialApp> {
   }
 }
 
-class _RouterRefresh extends ChangeNotifier {
-  _RouterRefresh(this.ref) {
-    ref.listen(modeControllerProvider, (_, __) => notifyListeners());
-  }
-
-  final WidgetRef ref;
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-}
+/// Notifies [GoRouter] to re-run redirects without holding a [WidgetRef].
+class _RouterRefresh extends ChangeNotifier {}

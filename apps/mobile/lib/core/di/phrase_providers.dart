@@ -48,14 +48,8 @@ final phraseDashboardFilterProvider = Provider<PhraseFilter>((ref) {
   return PhraseFilter(mode: mode, canonicalStage: mastery.canonicalStage);
 });
 
-/// Keeps dashboard wiring assertions warm when mode changes (no cycle with list).
-final phraseModeChangeListenerProvider = Provider<void>((ref) {
-  ref.listen(modeControllerProvider, (previous, next) {
-    final mode = next.valueOrNull;
-    if (mode == null) return;
-    _assertPhraseDashboardWire(ref, mode);
-  });
-});
+// Mode-change side effects: phraseListProvider already ref.watch(modeControllerProvider)
+// and re-asserts protocol wiring on each rebuild — no separate ref.listen required.
 
 final phraseSearchQueryProvider = StateProvider<String>((ref) => '');
 final phraseCategoryProvider = StateProvider<String?>((ref) => null);
