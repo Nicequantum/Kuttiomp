@@ -85,14 +85,27 @@ class ModeShellScaffold extends ConsumerWidget {
         ),
       ),
       body: navigationShell,
+      // NavigationBar requires ≥2 destinations (Material assertion).
+      // Home stays in the shell; Search opens the gated corpus pathway.
       bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: navigationShell.goBranch,
+        selectedIndex: navigationShell.currentIndex.clamp(0, 1),
+        onDestinationSelected: (index) {
+          if (index == 0) {
+            navigationShell.goBranch(0);
+            return;
+          }
+          context.push('/search');
+        },
         destinations: [
           NavigationDestination(
             icon: _ModeNavIcon(mode: mode, selected: false),
             selectedIcon: _ModeNavIcon(mode: mode, selected: true),
-            label: mode.label,
+            label: 'Home',
+          ),
+          const NavigationDestination(
+            icon: Icon(Icons.search_outlined),
+            selectedIcon: Icon(Icons.search),
+            label: 'Search',
           ),
         ],
       ),
