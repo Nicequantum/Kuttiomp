@@ -3,6 +3,11 @@ import { ApiStatusMessage } from "@/components/data/api-status-message";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  ContinuityPanel,
+  SAMPLE_CORPUS_METRICS,
+  SAMPLE_SPEAKER_STEWARDSHIP,
+} from "@/components/stewardship/continuity-panel";
 import { serverApiFetch } from "@/lib/server-api";
 import type { LexicalEntry } from "@kuttiomp/database";
 
@@ -98,6 +103,15 @@ export default async function LexiconPage() {
         description="Narragansett words and phrases with cultural context"
       />
       <div className="p-8 space-y-6">
+        <ContinuityPanel
+          corpus={{
+            ...SAMPLE_CORPUS_METRICS,
+            total_approved_lexemes: entries.filter(
+              (e) => e.approval_status === "approved" && !e.is_sacred
+            ).length,
+          }}
+          speaker={SAMPLE_SPEAKER_STEWARDSHIP}
+        />
         {usingFallback && (
           <ApiStatusMessage
             title="Showing sample lexicon entries"

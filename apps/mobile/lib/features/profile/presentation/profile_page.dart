@@ -16,6 +16,7 @@ import 'package:kuttiomp_mobile/features/profile/domain/profile_model.dart';
 import 'package:kuttiomp_mobile/features/profile/domain/profile_providers.dart';
 import 'package:kuttiomp_mobile/features/profile/presentation/keeper_dashboard_view.dart';
 import 'package:kuttiomp_mobile/features/profile/presentation/mode_selection_bottom_sheet.dart';
+import 'package:kuttiomp_mobile/features/stewardship/presentation/stewardship_summary_card.dart';
 import 'package:kuttiomp_mobile/shared/widgets/approved_content_gate.dart';
 import 'package:kuttiomp_mobile/shared/widgets/authority_badge.dart';
 
@@ -123,6 +124,9 @@ class _ProfilePageBodyState extends ConsumerState<_ProfilePageBody> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 AuthorityBadge(speakerMetadata: speaker, contentContext: ctx),
+                const SizedBox(height: 16),
+                // Stream D: Core Adult / Elder only — absolute stewardship counts (Protocol 10).
+                const StewardshipModeGatedCard(speakerId: 'grandmother-comus'),
                 const SizedBox(height: 16),
                 _ProfileField(label: 'User ID', value: profile.userId, ext: ext),
                 _ProfileField(label: 'Learning Path', value: profile.kuttiompMode.label, ext: ext),

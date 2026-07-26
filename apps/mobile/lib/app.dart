@@ -37,6 +37,15 @@ export 'package:kuttiomp_mobile/features/lexeme/presentation/lexeme_detail_scree
 export 'package:kuttiomp_mobile/features/lexeme/presentation/lexeme_mastery_petal.dart';
 export 'package:kuttiomp_mobile/features/phrases/domain/phrase.dart';
 export 'package:kuttiomp_mobile/features/phrases/data/phrases_repository.dart';
+export 'package:kuttiomp_mobile/features/phrases/data/isar_phrase_collection.dart';
+export 'package:kuttiomp_mobile/features/phrases/presentation/phrase_card.dart';
+export 'package:kuttiomp_mobile/features/phrases/presentation/phrases_list_screen.dart';
+export 'package:kuttiomp_mobile/features/phrases/presentation/phrase_detail_screen.dart';
+export 'package:kuttiomp_mobile/features/stewardship/domain/stewardship_models.dart';
+export 'package:kuttiomp_mobile/features/stewardship/data/stewardship_repository.dart';
+export 'package:kuttiomp_mobile/features/stewardship/presentation/stewardship_summary_card.dart';
+export 'package:kuttiomp_mobile/features/phrases/domain/phrase.dart';
+export 'package:kuttiomp_mobile/features/phrases/data/phrases_repository.dart';
 export 'package:kuttiomp_mobile/features/phrases/presentation/phrase_card.dart';
 export 'package:kuttiomp_mobile/features/lessons/domain/lesson.dart';
 export 'package:kuttiomp_mobile/features/lessons/data/lessons_repository.dart';

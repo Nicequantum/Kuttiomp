@@ -1,42 +1,14 @@
-/// Dashboard detail screens — lexeme module owns canonical detail (§6).
+/// Dashboard detail screens — feature modules own canonical details (§6).
 export 'package:kuttiomp_mobile/features/lexeme/presentation/lexeme_detail_screen.dart';
+export 'package:kuttiomp_mobile/features/phrases/presentation/phrase_detail_screen.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kuttiomp_mobile/core/di/lesson_providers.dart';
-import 'package:kuttiomp_mobile/core/di/phrase_providers.dart';
 import 'package:kuttiomp_mobile/features/lessons/presentation/lesson_card.dart' as lesson_content;
-import 'package:kuttiomp_mobile/features/phrases/presentation/phrase_card.dart' as phrase_content;
 import 'package:kuttiomp_mobile/shared/design_system/detail_view_shell.dart';
 
-/// Protocol-guarded phrase detail (§6).
-class PhraseDetailScreen extends ConsumerWidget {
-  const PhraseDetailScreen({required this.phraseId, super.key});
-
-  final String phraseId;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final asyncPhrase = ref.watch(phraseDetailProvider(phraseId));
-    return asyncPhrase.when(
-      data: (phrase) => KuttiompDetailViewShell(
-        title: 'Phrase Detail',
-        speakerMetadata: phrase.speakerMetadata,
-        contentContext: phrase.toContentContext(),
-        visibleToTiers: phrase.visibleToTiers,
-        child: phrase_content.PhraseCard.fromPhrase(phrase: phrase),
-      ),
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
-      error: (err, stack) => Scaffold(
-        body: Center(child: Text('Error: $err')),
-      ),
-    );
-  }
-}
-
-/// Protocol-guarded lesson detail (§6).
+/// Protocol-guarded lesson detail (§6) — full lessons parity is Stream C.
 class LessonDetailScreen extends ConsumerWidget {
   const LessonDetailScreen({required this.lessonId, super.key});
 

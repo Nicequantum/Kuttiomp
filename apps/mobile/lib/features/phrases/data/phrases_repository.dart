@@ -4,6 +4,7 @@ import 'package:kuttiomp_mobile/core/constants/modes.dart';
 import 'package:kuttiomp_mobile/core/constants/protocols.dart';
 import 'package:kuttiomp_mobile/core/supabase/audited_repository.dart';
 import 'package:kuttiomp_mobile/core/supabase/rpc_definitions.dart';
+import 'package:kuttiomp_mobile/features/phrases/data/isar_phrase_collection.dart';
 import 'package:kuttiomp_mobile/features/phrases/domain/phrase.dart';
 import 'package:kuttiomp_mobile/features/profile/domain/approved_contributions_store.dart';
 
@@ -16,7 +17,10 @@ class PhrasesRepository extends AuditedRepository {
   PhrasesRepository({
     super.gateway,
     super.auditedClient,
-  });
+    IsarPhraseCollection? isarCollection,
+  }) : _isarCollection = isarCollection ?? IsarPhraseCollection();
+
+  final IsarPhraseCollection _isarCollection;
 
   static const String loadLogMessage = 'Phrase loaded | Protocols 1,6,7 enforced';
 
@@ -120,6 +124,28 @@ class PhrasesRepository extends AuditedRepository {
       conversationPrompt: 'Ceremonial opening (consent required).',
     ),
   ];
+
+  /// Mirrors permitted phrases to encrypted Isar offline store (§7).
+  Future<PhraseMirrorSyncResult> mirrorOffline({
+    required KuttiompMode mode,
+    String? canonicalStage,
+    bool clanReauthenticated = true,
+    Future<bool> Function({
+      required String recordId,
+      required bool sacredFlag,
+    })? onSacredConsentRequired,
+  }) {
+    return _isarCollection.syncFromRepository(
+      repository: this,
+      mode: mode,
+      canonicalStage: canonicalStage,
+      clanReauthenticated: clanReauthenticated,
+      onSacredConsentRequired: onSacredConsentRequired,
+    );
+  }
+
+  Future<List<PhraseModel>> readOfflineMirror(int tierBitmask) =>
+      _isarCollection.readOfflineForTier(tierBitmask);
 
   /// Watches phrases for generational tier (Protocol 3).
   Future<List<Phrase>> watchPhrasesForTier(int tierBitmask, {String? stage}) async {
@@ -248,9 +274,18 @@ class PhrasesRepository extends AuditedRepository {
       }
       return phrases;
     } catch (_) {
-      final phrases = _offlineCorpus
+      var phrases = await readOfflineMirror(effectiveMode.tierBitmask);
+      if (phrases.isEmpty) {
+        phrases = _offlineCorpus
+            .where((p) => stage == null || p.canonicalStage == stage)
+            .where((p) =>
+                _isPermitted(p, effectiveMode, effectiveClan, landGeometry, seasonalWindow))
+            .toList();
+      }
+      phrases = phrases
           .where((p) => stage == null || p.canonicalStage == stage)
-          .where((p) => _isPermitted(p, effectiveMode, effectiveClan, landGeometry, seasonalWindow))
+          .where((p) =>
+              _isPermitted(p, effectiveMode, effectiveClan, landGeometry, seasonalWindow))
           .where((p) => _matchesCategory(p, category))
           .where((p) => _matchesQuery(p, normalizedQuery))
           .toList();
