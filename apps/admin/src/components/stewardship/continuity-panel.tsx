@@ -2,8 +2,7 @@
 
 /**
  * Continuity / Stewardship panel — Protocol 10 absolute (no gamification).
- * This serves our people by making attributed language labor visible as service
- * for Knowledge Keepers through 2050.
+ * Mode-themed via CSS variables from ModeThemeProvider.
  */
 
 export type ContinuityMetrics = {
@@ -38,17 +37,27 @@ export function ContinuityPanel({ corpus, speaker }: Props) {
   return (
     <section
       aria-label="Corpus stewardship continuity"
-      className="rounded-lg border-2 border-emerald-900/30 bg-stone-50 p-6 text-stone-900"
+      className="mode-stewardship-panel"
     >
-      <h2 className="font-serif text-xl font-semibold text-stone-900 md:text-2xl">
+      <h2
+        className="font-serif font-semibold text-foreground"
+        style={{ fontSize: "var(--mode-font-title)" }}
+      >
         Corpus Stewardship
       </h2>
-      <p className="mt-2 text-base leading-relaxed text-stone-800 md:text-lg">
-        Your attributed contributions strengthen the living language for the generations.
+      <p
+        className="mt-2 leading-relaxed text-foreground"
+        style={{ fontSize: "var(--mode-font-content)" }}
+      >
+        Your attributed contributions strengthen the living language for the
+        generations.
       </p>
 
       {speaker ? (
-        <div className="mt-4 space-y-1 text-base md:text-lg">
+        <div
+          className="mt-4 space-y-1 text-foreground"
+          style={{ fontSize: "var(--mode-font-content)" }}
+        >
           <p>
             <span className="font-medium">Speaker attribution:</span>{" "}
             {speaker.speaker_display_name} ({speaker.speaker_id})
@@ -57,35 +66,54 @@ export function ContinuityPanel({ corpus, speaker }: Props) {
             <span className="font-medium">Approval status:</span>{" "}
             {speaker.approval_status_note}
           </p>
-          <ul className="mt-3 list-none space-y-2 border-t border-stone-300 pt-3">
+          <ul className="mt-3 list-none space-y-2 border-t border-border pt-3">
             <li className="flex justify-between gap-4">
               <span>Submitted</span>
               <strong className="tabular-nums">{speaker.submitted_count}</strong>
             </li>
             <li className="flex justify-between gap-4">
               <span>Pending elder review</span>
-              <strong className="tabular-nums">{speaker.pending_approval_count}</strong>
+              <strong className="tabular-nums">
+                {speaker.pending_approval_count}
+              </strong>
             </li>
             <li className="flex justify-between gap-4">
               <span>Approved living</span>
-              <strong className="tabular-nums">{speaker.approved_living_count}</strong>
+              <strong className="tabular-nums">
+                {speaker.approved_living_count}
+              </strong>
             </li>
             <li className="flex justify-between gap-4">
               <span>Primary audio attributions</span>
-              <strong className="tabular-nums">{speaker.primary_audio_count}</strong>
+              <strong className="tabular-nums">
+                {speaker.primary_audio_count}
+              </strong>
             </li>
           </ul>
         </div>
       ) : null}
 
-      <div className="mt-6 border-t border-stone-300 pt-4">
-        <h3 className="text-lg font-semibold text-stone-900">Living corpus (absolute)</h3>
-        <p className="mt-2 flex justify-between gap-4 text-base md:text-lg">
+      <div className="mt-6 border-t border-border pt-4">
+        <h3
+          className="font-semibold text-foreground"
+          style={{ fontSize: "var(--mode-font-body)" }}
+        >
+          Living corpus (absolute)
+        </h3>
+        <p
+          className="mt-2 flex justify-between gap-4 text-foreground"
+          style={{ fontSize: "var(--mode-font-content)" }}
+        >
           <span>Approved lexemes (non-sacred)</span>
-          <strong className="tabular-nums">{corpus.total_approved_lexemes}</strong>
+          <strong className="tabular-nums">
+            {corpus.total_approved_lexemes}
+          </strong>
         </p>
         {corpus.last_approved_at ? (
-          <p className="mt-1 text-sm text-stone-700">
+          <p
+            className="mt-1 text-muted-foreground"
+            style={{ fontSize: "var(--mode-font-body)" }}
+          >
             Last approved: {new Date(corpus.last_approved_at).toLocaleString()}
           </p>
         ) : null}
@@ -93,7 +121,7 @@ export function ContinuityPanel({ corpus, speaker }: Props) {
         {hasTarget ? (
           <div className="mt-4">
             <div
-              className="h-3 w-full overflow-hidden rounded-none bg-stone-200"
+              className="h-3 w-full overflow-hidden rounded-none bg-muted"
               role="progressbar"
               aria-valuenow={Math.round((corpus.continuity_pct ?? 0) * 100)}
               aria-valuemin={0}
@@ -101,21 +129,27 @@ export function ContinuityPanel({ corpus, speaker }: Props) {
               aria-label="Progress toward Keeper-defined lexicon target"
             >
               <div
-                className="h-full bg-emerald-900"
+                className="h-full bg-primary"
                 style={{
                   width: `${Math.min(100, Math.max(0, (corpus.continuity_pct ?? 0) * 100))}%`,
                 }}
               />
             </div>
-            <p className="mt-2 text-sm text-stone-800">
+            <p
+              className="mt-2 text-foreground"
+              style={{ fontSize: "var(--mode-font-body)" }}
+            >
               Toward Keeper-defined target: {corpus.target_lexemes}
             </p>
           </div>
         ) : (
-          <p className="mt-3 text-base text-stone-800">
-            No Keeper-defined lexicon target is configured. Absolute counts only are
-            shown. Priority domains and target size must be supplied by Keepers before
-            continuity percentage can appear.
+          <p
+            className="mt-3 text-foreground"
+            style={{ fontSize: "var(--mode-font-content)" }}
+          >
+            No Keeper-defined lexicon target is configured. Absolute counts only
+            are shown. Priority domains and target size must be supplied by
+            Keepers before continuity percentage can appear.
           </p>
         )}
       </div>

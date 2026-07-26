@@ -1,0 +1,56 @@
+/**
+ * Admin mode theme layers — applied via data-admin-mode on <html>.
+ * Protocol 10: no confetti, no streak flames, no cartoon motifs.
+ */
+
+html[data-admin-mode] body {
+  font-size: var(--mode-font-body, 1rem);
+  background-image: var(--mode-surface-tint, none);
+}
+
+html[data-admin-mode="elder"] body {
+  /* Protocol 11 — content scale; chrome uses same tokens */
+  letter-spacing: 0.01em;
+}
+
+html[data-admin-mode="little_ones"] .mode-rounded-extra {
+  border-radius: calc(var(--radius) + 0.25rem);
+}
+
+/* Dignified focus — high visibility without playful glow */
+html[data-admin-mode] :focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Stewardship / continuity absolute panels */
+.mode-stewardship-panel {
+  border-width: 2px;
+  border-color: hsl(var(--primary) / 0.35);
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  font-size: var(--mode-font-content);
+}
+
+.mode-sidebar-surface {
+  background-color: hsl(var(--mode-sidebar, var(--background)));
+  border-color: hsl(var(--mode-sidebar-border, var(--border)));
+}
+
+.mode-nav-link {
+  color: hsl(var(--mode-nav-idle, var(--muted-foreground)));
+  border-radius: var(--radius);
+}
+
+.mode-nav-link[data-active="true"] {
+  background-color: hsl(var(--mode-nav-active, var(--primary)));
+  color: hsl(var(--mode-nav-active-fg, var(--primary-foreground)));
+  font-weight: 600;
+}
+
+.mode-nav-link:not([data-active="true"]):hover {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--foreground));
+}

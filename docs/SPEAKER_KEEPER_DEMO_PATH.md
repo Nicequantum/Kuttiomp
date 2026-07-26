@@ -18,7 +18,8 @@ You are using the **real Kuttiomp architecture** — the same Flutter learner ap
 
 1. Open the **Knowledge Keeper portal** (`apps/admin`).
 2. Sign in with your Keeper credentials.
-3. Go to **Lexicon** (or **Lexicon Editor**) to enter or review a word.
+3. Optionally switch **Portal visual path** in the sidebar (Little Ones / Young Learner / Core Adult / Elder) to preview how each generation experiences the same dignified workspace — see `docs/ADMIN_UI_MODES.md`. No gamification appears in any path.
+4. Go to **Lexicon** (or **Lexicon Editor**) to enter or review a word.
    - Each entry carries **speaker attribution** (who said it).
    - Entries wait for **elder approval** before they join the living learner corpus.
 4. On the Lexicon page (and under **Stewardship** in the sidebar), open the **Corpus Stewardship** panel.

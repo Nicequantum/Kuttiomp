@@ -53,13 +53,21 @@ export function ContinuityPanelLive({
   return (
     <div className="space-y-2">
       {loading ? (
-        <p className="text-sm text-stone-600" role="status">
+        <p
+          className="text-muted-foreground"
+          role="status"
+          style={{ fontSize: "var(--mode-font-body)" }}
+        >
           Loading stewardship counts…
         </p>
       ) : (
-        <p className="text-sm text-stone-600" role="status">
+        <p
+          className="text-muted-foreground"
+          role="status"
+          style={{ fontSize: "var(--mode-font-body)" }}
+        >
           Data source:{" "}
-          <strong>
+          <strong className="text-foreground">
             {source === "live_rpc"
               ? "Live database (RPC after migration 005)"
               : "Offline absolute counts (migration not applied or network unavailable)"}
