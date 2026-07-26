@@ -89,13 +89,16 @@ class ModeAwareShell extends ConsumerWidget {
           fontSize: mode.minimumFontSize,
         );
 
+    // SizedBox.expand tightens height so mode strategies + ListView get bounds.
     return ModeTierGuard(
       visibleToTiers: visibleToTiers,
-      child: ContentRenderer.adaptForMode(
-        context: context,
-        mode: mode,
-        contentContext: ctx,
-        child: child,
+      child: SizedBox.expand(
+        child: ContentRenderer.adaptForMode(
+          context: context,
+          mode: mode,
+          contentContext: ctx,
+          child: child,
+        ),
       ),
     );
   }

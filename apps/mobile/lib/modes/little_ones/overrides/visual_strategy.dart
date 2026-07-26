@@ -24,7 +24,11 @@ class LittleOnesVisualStrategy implements ModeVisualStrategy {
         color: ext.surfaceMist,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Padding(padding: const EdgeInsets.all(12), child: child),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        // Fill parent so dashboard ListView has a bounded viewport.
+        child: SizedBox.expand(child: child),
+      ),
     );
   }
 }

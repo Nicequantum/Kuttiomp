@@ -86,15 +86,21 @@ class ModeShellScaffold extends ConsumerWidget {
       ),
       body: navigationShell,
       // NavigationBar requires ≥2 destinations (Material assertion).
-      // Home stays in the shell; Search opens the gated corpus pathway.
+      // Shell branch 0 = Home; Search/Profile open root routes under ApprovedContentGate.
       bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex.clamp(0, 1),
+        selectedIndex: 0,
         onDestinationSelected: (index) {
-          if (index == 0) {
-            navigationShell.goBranch(0);
-            return;
+          switch (index) {
+            case 0:
+              navigationShell.goBranch(0);
+              if (GoRouterState.of(context).uri.path != '/dashboard') {
+                context.go('/dashboard');
+              }
+            case 1:
+              context.push('/search');
+            case 2:
+              context.push('/profile');
           }
-          context.push('/search');
         },
         destinations: [
           NavigationDestination(
@@ -106,6 +112,11 @@ class ModeShellScaffold extends ConsumerWidget {
             icon: Icon(Icons.search_outlined),
             selectedIcon: Icon(Icons.search),
             label: 'Search',
+          ),
+          const NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ),

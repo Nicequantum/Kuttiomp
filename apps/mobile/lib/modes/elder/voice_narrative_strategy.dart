@@ -19,21 +19,28 @@ class ElderVoiceNarrativeStrategy implements ModeVisualStrategy {
     required Map<String, dynamic> contentContext,
   }) {
     final ext = KuttiompThemeExtension.of(context);
+    final header = Row(
+      children: [
+        Icon(Icons.record_voice_over, color: ext.landAccent, size: 28),
+        const SizedBox(width: 8),
+        Text('Voice leads', style: ext.elderTitle),
+      ],
+    );
     return Semantics(
       label: 'Elder voice narrative content',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final bounded = constraints.maxHeight.isFinite;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: bounded ? MainAxisSize.max : MainAxisSize.min,
             children: [
-              Icon(Icons.record_voice_over, color: ext.landAccent, size: 28),
-              const SizedBox(width: 8),
-              Text('Voice leads', style: ext.elderTitle),
+              header,
+              const SizedBox(height: 12),
+              if (bounded) Expanded(child: child) else child,
             ],
-          ),
-          const SizedBox(height: 12),
-          child,
-        ],
+          );
+        },
       ),
     );
   }

@@ -6,7 +6,6 @@ import 'package:kuttiomp_mobile/core/di/mode_controller.dart';
 import 'package:kuttiomp_mobile/core/theme/kuttiomp_theme_extension.dart';
 import 'package:kuttiomp_mobile/features/stewardship/data/stewardship_repository.dart';
 import 'package:kuttiomp_mobile/features/stewardship/domain/stewardship_models.dart';
-import 'package:kuttiomp_mobile/modes/content_renderer.dart';
 import 'package:kuttiomp_mobile/shared/design_system/kuttiomp_content_widget.dart';
 
 final stewardshipRepositoryProvider = Provider<StewardshipRepository>((ref) {
@@ -34,6 +33,7 @@ class StewardshipSummaryCard extends KuttiompContentWidget {
     required this.summary,
     required this.corpus,
     required super.speakerMetadata,
+    double fontSize = 32,
     super.key,
   }) : super(
           elderApproved: true,
@@ -44,6 +44,8 @@ class StewardshipSummaryCard extends KuttiompContentWidget {
             'authority_source': 'elder',
             'speaker_id': speakerMetadata['speaker_id'] ?? 'stewardship',
             'attribution_json': speakerMetadata,
+            // Protocol 11 – elder-centric minimum (32pt) when shown in Elder mode.
+            'fontSize': fontSize,
           },
         );
 
@@ -172,31 +174,31 @@ class StewardshipModeGatedCard extends ConsumerWidget {
     final summaryAsync = ref.watch(speakerStewardshipProvider(speakerId));
     final corpusAsync = ref.watch(corpusContinuityProvider);
 
+    // Do not wrap with ContentRenderer/ElderModeOverlay here — this card lives
+    // inside the dashboard ListView (unbounded height). Parent ModeAwareShell
+    // already applies mode presentation.
     return summaryAsync.when(
       data: (summary) => corpusAsync.when(
-        data: (corpus) => ContentRenderer.adaptForMode(
-          context: context,
-          mode: mode,
-          contentContext: {
-            'elderApproved': true,
-            'speaker_id': speakerId,
+        data: (corpus) => StewardshipSummaryCard(
+          summary: summary,
+          corpus: corpus,
+          fontSize: mode.minimumFontSize,
+          speakerMetadata: {
+            'speaker_id': summary.speakerId,
+            'name': 'Attributed speaker',
             'authority_source': 'elder',
-            'fontSize': mode.minimumFontSize,
           },
-          child: StewardshipSummaryCard(
-            summary: summary,
-            corpus: corpus,
-            speakerMetadata: {
-              'speaker_id': summary.speakerId,
-              'name': 'Attributed speaker',
-              'authority_source': 'elder',
-            },
-          ),
         ),
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Padding(
+          padding: EdgeInsets.all(16),
+          child: Center(child: CircularProgressIndicator()),
+        ),
         error: (e, _) => Text('Stewardship unavailable: $e'),
       ),
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Padding(
+        padding: EdgeInsets.all(16),
+        child: Center(child: CircularProgressIndicator()),
+      ),
       error: (e, _) => Text('Stewardship unavailable: $e'),
     );
   }

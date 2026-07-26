@@ -19,12 +19,22 @@ class YoungLearnerVisualStrategy implements ModeVisualStrategy {
     required Map<String, dynamic> contentContext,
   }) {
     final ext = KuttiompThemeExtension.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Divider(color: ext.landAccent, height: 1),
-        Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: child),
-      ],
+    final body = Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: child,
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bounded = constraints.maxHeight.isFinite;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: bounded ? MainAxisSize.max : MainAxisSize.min,
+          children: [
+            Divider(color: ext.landAccent, height: 1),
+            if (bounded) Expanded(child: body) else body,
+          ],
+        );
+      },
     );
   }
 }
