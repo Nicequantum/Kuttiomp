@@ -1,23 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:kuttiomp_mobile/core/theme/kuttiomp_theme_extension.dart';
 import 'package:kuttiomp_mobile/features/search/domain/search_result_model.dart';
-import 'package:kuttiomp_mobile/shared/design_system/oral_first_player.dart';
+import 'package:kuttiomp_mobile/shared/design_system/geo_context_badge.dart';
+import 'package:kuttiomp_mobile/shared/design_system/kuttiomp_content_widget.dart';
+import 'package:kuttiomp_mobile/shared/design_system/player.dart';
+import 'package:kuttiomp_mobile/shared/widgets/approved_content_gate.dart';
 import 'package:kuttiomp_mobile/shared/widgets/authority_badge.dart';
-import 'package:kuttiomp_mobile/shared/widgets/geo_context_badge.dart';
-import 'package:kuttiomp_mobile/shared/widgets/protocol_base_widget.dart';
 
-/// Unified search result card – oral-first with land and sacred indicators (Protocols 1,4,6,7,8).
-class SearchResultCard extends ProtocolBaseWidget {
-  const SearchResultCard({
+/// Unified search result — oral-first, gated, attributed (Protocols 1,2,4,6,7,8).
+///
+/// This serves our people by showing words, phrases, and lessons under the same
+/// cultural gates in search as on detail routes through 2050.
+class SearchResultCard extends KuttiompContentWidget {
+  SearchResultCard({
     required this.result,
     required super.speakerMetadata,
-    required super.contentContext,
+    required Map<String, dynamic> contentContext,
     this.onTap,
     super.key,
-  });
+  }) : super(
+          elderApproved: contentContext['elderApproved'] == true,
+          clanScope: _clanScope(contentContext),
+          contentContext: contentContext,
+        );
 
   final SearchResultModel result;
   final VoidCallback? onTap;
+
+  static List<String> _clanScope(Map<String, dynamic> ctx) {
+    final raw = ctx['clan_scope'] ?? ctx['clanScope'];
+    if (raw is List) return raw.map((e) => e.toString()).toList();
+    return const [];
+  }
 
   factory SearchResultCard.fromResult({
     required SearchResultModel result,
@@ -36,64 +50,75 @@ class SearchResultCard extends ProtocolBaseWidget {
   @override
   Widget buildProtocolContent(BuildContext context) {
     final ext = KuttiompThemeExtension.of(context);
+    final ctx = mergedContext;
 
-    return Semantics(
-      button: onTap != null,
-      label:
-          '${result.contentType.label}: ${result.title}. ${result.subtitle}. Speaker ${speakerMetadata['name']}',
-      child: Material(
-        color: ext.surfaceMist,
-        borderRadius: BorderRadius.circular(16),
-        child: InkWell(
-          onTap: onTap,
+    // Unapproved never surfaces in search UI (Protocol 2).
+    if (!result.elderApproved) {
+      return const SizedBox.shrink();
+    }
+
+    return ApprovedContentGate(
+      contentContext: ctx,
+      builder: (_) => Semantics(
+        button: onTap != null,
+        label:
+            '${result.contentType.label}: ${result.title}. ${result.subtitle}. '
+            'Speaker ${speakerMetadata['name']}',
+        child: Material(
+          color: ext.surfaceMist,
           borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: ext.landAccent.withOpacity(0.5)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    _TypeBadge(type: result.contentType, ext: ext),
-                    if (result.requiresSacredGate) ...[
-                      const SizedBox(width: 8),
-                      _SacredBadge(ext: ext),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: ext.landAccent.withValues(alpha: 0.5)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      _TypeBadge(type: result.contentType, ext: ext),
+                      if (result.requiresSacredGate) ...[
+                        const SizedBox(width: 8),
+                        _SacredBadge(ext: ext),
+                      ],
+                      const Spacer(),
+                      Text(
+                        'Stage: ${result.canonicalStage}',
+                        style: ext.bodyLarge.copyWith(fontSize: 16),
+                      ),
                     ],
-                    const Spacer(),
-                    Text(
-                      'Stage: ${result.canonicalStage}',
-                      style: ext.bodyLarge.copyWith(fontSize: 16),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(result.title, style: ext.elderTitle.copyWith(fontSize: 24)),
+                  const SizedBox(height: 4),
+                  Text(result.subtitle, style: ext.bodyLarge),
+                  const SizedBox(height: 12),
+                  OralFirstPlayer(
+                    speakerMetadata: speakerMetadata,
+                    contentContext: ctx,
+                    audioLabel: 'Hear ${result.title}',
+                  ),
+                  if (result.requiresLandContext) ...[
+                    const SizedBox(height: 12),
+                    GeoContextBadge(
+                      speakerMetadata: speakerMetadata,
+                      contentContext: ctx,
+                      landLabel: result.landContext?['label'] as String? ??
+                          'Narragansett territory',
                     ),
                   ],
-                ),
-                const SizedBox(height: 8),
-                Text(result.title, style: ext.elderTitle.copyWith(fontSize: 24)),
-                const SizedBox(height: 4),
-                Text(result.subtitle, style: ext.bodyLarge),
-                const SizedBox(height: 12),
-                OralFirstPlayer(
-                  speakerMetadata: speakerMetadata,
-                  contentContext: contentContext,
-                  audioLabel: 'Hear ${result.title}',
-                ),
-                if (result.requiresLandContext) ...[
                   const SizedBox(height: 12),
-                  GeoContextBadge(
+                  AuthorityBadge(
                     speakerMetadata: speakerMetadata,
-                    contentContext: contentContext,
-                    landLabel: result.landContext?['label'] as String? ?? 'Narragansett territory',
+                    contentContext: ctx,
                   ),
                 ],
-                const SizedBox(height: 12),
-                AuthorityBadge(
-                  speakerMetadata: speakerMetadata,
-                  contentContext: contentContext,
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -113,7 +138,7 @@ class _TypeBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: ext.landAccent.withOpacity(0.15),
+        color: ext.landAccent.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: ext.landAccent),
       ),
@@ -135,7 +160,7 @@ class _SacredBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: ext.barkPrimary.withOpacity(0.12),
+        color: ext.barkPrimary.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: ext.barkPrimary),
       ),

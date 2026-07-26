@@ -1,29 +1,36 @@
-# Tribal Maintainer Guide – Auth (v2.0)
+# Tribal Maintainer Guide – Auth
 
-**Onboarding target:** < 45 minutes for bootstrap traceability.
+**Onboarding target:** &lt; 45 minutes  
+**Constitution:** MAD v2.0 §§3, 4, 13
 
-## Purpose
+## Directory map (Stream F alignment)
 
-Full Supabase Auth with custom JWT claims for mode, clan, and role (§3, §13, Component 6).
+```
+features/auth/
+├── data/auth_service.dart           # KuttiompAuthService (session + JWT claims)
+├── domain/auth_state.dart           # KuttiompAuthSnapshot
+├── presentation/auth_providers.dart # Riverpod authSnapshotProvider
+├── auth_service.dart                # re-export (stable import path)
+├── auth_state.dart                  # re-export
+└── auth_state_provider.dart         # re-export
+```
 
-## Quick Navigation
+## One-hour path
 
-1. **Locate bootstrap sequence in `app_bootstrap.dart` – entire foundation traceable in <45 minutes.**
-2. Open `lib/features/auth/auth_service.dart` → `ensureSession()`, `syncModeClaim()`, `updateModeViaRpc()`.
-3. Open `lib/features/auth/auth_state.dart` + `auth_state_provider.dart` → reactive snapshots.
-4. Open `lib/core/routing/auth_redirect_guard.dart` → guest-permitted offline access.
+1. Bootstrap: `core/bootstrap/app_bootstrap.dart` → `ensureSession()`.
+2. Claims: `data/auth_service.dart` → `extractClaimsFromSession()` / `syncModeClaim()`.
+3. Snapshot: `domain/auth_state.dart` → `KuttiompAuthSnapshot`.
+4. Routing: `core/routing/auth_redirect_guard.dart` → guest offline path.
 
-## Auth Flow
+## Rules
 
-1. Bootstrap calls `ensureSession()` — anonymous sign-in when Supabase available.
-2. Claims extracted from JWT metadata → `KuttiompProtocolService.updateClaims()`.
-3. Mode changes call `update_user_mode_secure` audited RPC (never direct tables).
-4. Guest fallback (`guest-kuttiomp`) when offline.
+- Mode updates go through audited RPC `update_user_mode_secure` (never direct tables).
+- Guest id: `kGuestUserId` / `guest-kuttiomp` when offline.
+- ProtocolService claims must update on every mode switch.
 
 ## Verify
 
 ```bash
-cd apps/mobile
 flutter test test/offline/full_offline_functionality_test.dart
 ```
 
