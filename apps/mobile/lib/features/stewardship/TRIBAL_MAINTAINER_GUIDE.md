@@ -23,11 +23,20 @@ Show Knowledge Keepers and speakers **absolute** contribution counts as service 
 **Target lexicon size and priority domains are not configured.**  
 `target_lexemes` and `continuity_pct` stay `null` until Keepers supply them. Do not invent values.
 
+## Live RPC vs offline
+
+1. Apply `supabase/migrations/005_stewardship_continuity_views.sql` (see `docs/MIGRATION_005_APPLY.md`).
+2. Flutter: `StewardshipRepository` tries live RPC first; sets `lastFetchUsedLiveRpc`.
+3. Admin: `ContinuityPanelLive` shows data source line (live vs offline).
+4. Confirm checklist: `docs/STEWARDSHIP_LIVE_RPC_CONFIRMATION.md`.
+
 ## Verify
 
 ```bash
 flutter test test/features/stewardship/
 dart run scripts/dignity_lint.dart
+# Full maintainer checklist:
+# docs/TRIBAL_MAINTAINER_VERIFY.md
 ```
 
 **(Protocol 12 compliance verified)**
