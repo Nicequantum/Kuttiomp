@@ -1,0 +1,11 @@
+# Kuttiomp localization configuration (§4, §8)
+# ARB files require Elder Review Gate approval before any production merge.
+
+arb-dir: l10n
+template-arb-file: app_en.arb
+output-localization-file: kuttiomp_localizations.dart
+output-class: KuttiompLocalizations
+preferred-supported-locales:
+  - en
+  - narr
+elder-review-gate: elder_review_manifest.yaml

@@ -1,28 +1,38 @@
 import 'package:flutter/material.dart';
-import 'package:kuttiomp_mobile/core/constants/protocols.dart';
-import 'package:kuttiomp_mobile/core/protocol/tier_aware_page.dart';
 import 'package:kuttiomp_mobile/core/theme/kuttiomp_theme_extension.dart';
 import 'package:kuttiomp_mobile/features/lexeme/domain/lexeme.dart';
-import 'package:kuttiomp_mobile/shared/design_system/oral_first_player.dart';
+import 'package:kuttiomp_mobile/shared/design_system/geo_context_badge.dart';
+import 'package:kuttiomp_mobile/shared/design_system/kuttiomp_content_widget.dart';
+import 'package:kuttiomp_mobile/shared/design_system/living_authority_decorator.dart';
+import 'package:kuttiomp_mobile/shared/design_system/player.dart';
+import 'package:kuttiomp_mobile/shared/design_system/tier_aware_page.dart';
 import 'package:kuttiomp_mobile/shared/widgets/approved_content_gate.dart';
 import 'package:kuttiomp_mobile/shared/widgets/authority_badge.dart';
-import 'package:kuttiomp_mobile/shared/widgets/geo_context_badge.dart';
 import 'package:kuttiomp_mobile/shared/widgets/land_context_renderer.dart';
-import 'package:kuttiomp_mobile/shared/widgets/living_authority_decorator.dart';
-import 'package:kuttiomp_mobile/shared/widgets/protocol_base_widget.dart';
 
-/// Tappable lexeme card – oral-first, attributed, protocol-gated (Protocols 1,2,3,6,7,8).
+/// Tappable lexeme card – KuttiompContentWidget with full protocol stack (§6).
 ///
-/// Tribal Maintainer Guide (Protocol 12): modify guards here; search `ApprovedContentGate`.
-class LexemeCard extends ProtocolBaseWidget {
-  const LexemeCard({
+/// This serves our people by making speaker attribution and elder approval
+/// impossible to bypass on any lexeme surface through 2050.
+class LexemeCard extends KuttiompContentWidget {
+  LexemeCard({
     required this.lexeme,
     required super.speakerMetadata,
-    required super.contentContext,
+    required Map<String, dynamic> contentContext,
     this.onTap,
     this.onPlayAudio,
     super.key,
-  });
+  }) : super(
+          elderApproved: contentContext['elderApproved'] == true,
+          clanScope: _clanScope(contentContext),
+          contentContext: contentContext,
+        );
+
+  static List<String> _clanScope(Map<String, dynamic> ctx) {
+    final raw = ctx['clan_scope'] ?? ctx['clanScope'];
+    if (raw is List) return raw.map((e) => e.toString()).toList();
+    return const [];
+  }
 
   final LexemeModel lexeme;
   final VoidCallback? onTap;
@@ -47,7 +57,7 @@ class LexemeCard extends ProtocolBaseWidget {
   @override
   Widget buildProtocolContent(BuildContext context) {
     final ext = KuttiompThemeExtension.of(context);
-    final ctx = lexeme.toContentContext();
+    final ctx = mergedContext;
 
     return ApprovedContentGate(
       contentContext: ctx,
@@ -60,7 +70,8 @@ class LexemeCard extends ProtocolBaseWidget {
             lexeme: lexeme,
             child: Semantics(
               button: onTap != null,
-              label: 'Lexeme ${lexeme.word}. ${lexeme.translation}. Speaker ${lexeme.speakerName}',
+              label:
+                  'Lexeme ${lexeme.word}. ${lexeme.translation}. Speaker ${lexeme.speakerName}',
               child: Material(
                 color: ext.surfaceMist,
                 borderRadius: BorderRadius.circular(16),
@@ -82,7 +93,7 @@ class LexemeCard extends ProtocolBaseWidget {
                         const SizedBox(height: 12),
                         OralFirstPlayer(
                           speakerMetadata: speakerMetadata,
-                          contentContext: contentContext,
+                          contentContext: ctx,
                           audioLabel: 'Hear ${lexeme.word}',
                           textContent: lexeme.translation,
                           onPlayAudio: onPlayAudio,
@@ -98,7 +109,7 @@ class LexemeCard extends ProtocolBaseWidget {
                         const SizedBox(height: 12),
                         AuthorityBadge(
                           speakerMetadata: speakerMetadata,
-                          contentContext: contentContext,
+                          contentContext: ctx,
                         ),
                       ],
                     ),

@@ -1,0 +1,78 @@
+{
+  "schema_version": "vPilotCohortDocs-1.0",
+  "protocol_gateway_compliant": true,
+  "required_protocols": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+  "cohort_id": "pilot-cohort-live-2026",
+  "keeper_signoff": {
+    "status_options": [
+      "pending",
+      "keeper_review",
+      "approved_ready_for_scale",
+      "needs_revision"
+    ],
+    "target_status": "approved_ready_for_scale",
+    "rpc": "submit_live_pilot_observation_secure",
+    "mobile_method": "PilotLiveService.recordKeeperSignoffWithMedia"
+  },
+  "review_items": [
+    {
+      "id": "onboarding_clarity",
+      "label": "Onboarding clarity",
+      "pass_criteria": "≥90% households complete without steward assistance",
+      "protocols": ["2", "7", "11"]
+    },
+    {
+      "id": "mode_persistence",
+      "label": "Mode persistence",
+      "pass_criteria": "Survives device restart in all households",
+      "protocols": ["3"]
+    },
+    {
+      "id": "search_oral_first",
+      "label": "Search + oral-first",
+      "pass_criteria": "Land query returns attributed audio in all modes tested",
+      "protocols": ["1", "6", "7"]
+    },
+    {
+      "id": "elder_contribution_chain",
+      "label": "Elder contribution chain",
+      "pass_criteria": "Submit → pending → approve → corpus mirror (Elder households)",
+      "protocols": ["2", "8"]
+    },
+    {
+      "id": "offline_resilience",
+      "label": "Offline resilience",
+      "pass_criteria": "Cached content available; sacred re-auth honored",
+      "protocols": ["4", "5", "9"]
+    },
+    {
+      "id": "accessibility_elder",
+      "label": "Accessibility (Elder)",
+      "pass_criteria": "32pt+ readable; semantics labels present",
+      "protocols": ["11"]
+    },
+    {
+      "id": "dignity",
+      "label": "Dignity (non-gamification)",
+      "pass_criteria": "No gamification observed in any household",
+      "protocols": ["10"]
+    },
+    {
+      "id": "cultural_integrity",
+      "label": "Cultural integrity",
+      "pass_criteria": "Zero unresolved protocol violations; documentation complete",
+      "protocols": ["12"]
+    }
+  ],
+  "media_review": {
+    "screenshot_consent_required": true,
+    "voice_primary_audio_required": true,
+    "sacred_content_in_screenshots": false
+  },
+  "isar_sync": {
+    "store": "PilotLiveLogStore",
+    "notifier": "KeeperLiveSignoffNotifier",
+    "sync_method": "PilotLiveService.syncPendingObservations"
+  },
+  "audit_log_outcome": "CohortDocs-1.0 rendered under full 12-protocol compliance"
+}

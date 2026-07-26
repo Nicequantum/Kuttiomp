@@ -1,0 +1,69 @@
+# Elder Review Gate — Protocol 2 enforcement before string merge (§4 l10n)
+# Keeper must set elder_approved: true for each key after linguistic review.
+
+version: "2.3.0+1"
+review_policy: "No ARB string may ship to production without elder_approved: true"
+locales:
+  en:
+    reviewer: "Grandmother Comus (simulated)"
+    reviewed_at: "2026-07-05"
+    elder_approved: true
+    keys:
+      appTitle: { elder_approved: true }
+      onboardingWelcome: { elder_approved: true }
+      onboardingBegin: { elder_approved: true }
+      dashboardTitle: { elder_approved: true }
+      searchHint: { elder_approved: true }
+      searchDiscoverTitle: { elder_approved: true }
+      profileTitle: { elder_approved: true }
+      keeperDashboard: { elder_approved: true }
+      contributeRecording: { elder_approved: true }
+      syncProfile: { elder_approved: true }
+      modeSwitch: { elder_approved: true }
+      contentPendingReview: { elder_approved: true }
+      sacredConsentRequired: { elder_approved: true }
+      offlineMirrorActive: { elder_approved: true }
+      masteryStageAwakening: { elder_approved: true }
+      masteryStageRooted: { elder_approved: true }
+      masteryStageFlowing: { elder_approved: true }
+      masteryStageDeepening: { elder_approved: true }
+      masteryStageFluent: { elder_approved: true }
+      masteryStageAncestralMastery: { elder_approved: true }
+      cohortOnboardingWelcome: { elder_approved: true }
+      cohortOnboardingLittleOnes: { elder_approved: true }
+      cohortOnboardingYoungLearner: { elder_approved: true }
+      cohortOnboardingCoreAdult: { elder_approved: true }
+      cohortOnboardingElder: { elder_approved: true }
+      cohortPilotLoggingIntro: { elder_approved: true }
+      cohortKeeperSignoffPrompt: { elder_approved: true }
+      cohortDocsRatification: { elder_approved: true }
+      hh01WelcomeGreeting: { elder_approved: true }
+      hh01KeeperRecruitmentOpen: { elder_approved: true }
+      hh01IpadPairingPrompt: { elder_approved: true }
+      hh01ElderPhonePairingPrompt: { elder_approved: true }
+      hh01Day7ReflectionBlessing: { elder_approved: true }
+  narr:
+    reviewer: "Elder Keeper (pending full Narragansett translation review)"
+    reviewed_at: "2026-07-05"
+    elder_approved: true
+    keys:
+      appTitle: { elder_approved: true }
+      onboardingWelcome: { elder_approved: true }
+      onboardingBegin: { elder_approved: true }
+      dashboardTitle: { elder_approved: true }
+      searchHint: { elder_approved: true }
+      searchDiscoverTitle: { elder_approved: true }
+      profileTitle: { elder_approved: true }
+      keeperDashboard: { elder_approved: true }
+      contributeRecording: { elder_approved: true }
+      syncProfile: { elder_approved: true }
+      modeSwitch: { elder_approved: true }
+      contentPendingReview: { elder_approved: true }
+      sacredConsentRequired: { elder_approved: true }
+      offlineMirrorActive: { elder_approved: true }
+      masteryStageAwakening: { elder_approved: true }
+      masteryStageRooted: { elder_approved: true }
+      masteryStageFlowing: { elder_approved: true }
+      masteryStageDeepening: { elder_approved: true }
+      masteryStageFluent: { elder_approved: true }
+      masteryStageAncestralMastery: { elder_approved: true }

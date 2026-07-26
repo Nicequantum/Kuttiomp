@@ -1,0 +1,46 @@
+{
+  "version": "vPilotSeedingMonitor-1.0",
+  "household_id": "HH01",
+  "seeding_cohort": "HH01",
+  "monitor_session_id": "monitor-HH01-{timestamp}",
+  "protocol_gateway_compliant": true,
+  "protocols_enforced": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+  "pilot_seeding_monitor_version": "1.0",
+  "observation_window_hours": 48,
+  "required_fields": {
+    "day1_confirmed": false,
+    "day2_confirmed": false,
+    "offline_queue_depth_at_seal": 0,
+    "elder_stamp": null,
+    "keeper_id": "keeper-council-monitor",
+    "covenant_message": "HH01 Covenant Sealed – 48hr Integrity Confirmed"
+  },
+  "day_observations": [
+    {
+      "day": 1,
+      "journey_step": "onboarding",
+      "device_type": "family_ipad",
+      "observer_role": "parent_observer",
+      "media_thumbnail_ref": null,
+      "protocol_assertions_passed": true
+    },
+    {
+      "day": 2,
+      "journey_step": "search_land",
+      "device_type": "family_ipad",
+      "observer_role": "parent_observer",
+      "media_thumbnail_ref": null,
+      "protocol_assertions_passed": true
+    }
+  ],
+  "sync_exception_notes": null,
+  "rpc_calls": [
+    "review_48hr_observations_secure",
+    "seal_covenant_secure"
+  ],
+  "mobile_service": "SeedingMonitorService",
+  "profile_fields": {
+    "seeding_cohort": "HH01",
+    "monitor_session_id": "immutable"
+  }
+}

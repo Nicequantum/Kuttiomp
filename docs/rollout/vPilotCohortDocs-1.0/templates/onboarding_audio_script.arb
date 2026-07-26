@@ -1,0 +1,18 @@
+{
+  "@@locale": "en",
+  "@@context": "Pilot cohort onboarding — voice-narrated PDF + QR audio (Protocol 2, 7). Merge keys to l10n/app_en.arb after Keeper review.",
+  "cohortOnboardingWelcome": "Welcome to the Kuttiomp pilot. You are helping return our language to our homes. Listen first, then choose the learning path that honors your household.",
+  "@cohortOnboardingWelcome": {
+    "description": "Household packet Day 0 — QR-linked narration"
+  },
+  "cohortOnboardingLittleOnes": "For our little ones, hear the words before reading. A parent may guide each step on the family iPad.",
+  "cohortOnboardingYoungLearner": "Young learners, your voice matters. Practice phrases and log what you hear each day.",
+  "cohortOnboardingCoreAdult": "Use Kuttiomp in daily life. Search the land, complete lessons, and log your journey.",
+  "cohortOnboardingElder": "Elders, your oral recordings are the heart of this work. Contribute, review, and bless what enters the corpus.",
+  "cohortPilotLoggingIntro": "Open Pilot Logging from the Dashboard. Tap once to capture your observation with voice and photo.",
+  "cohortKeeperSignoffPrompt": "Keepers, review household logs with care. When the seven days are complete, record your sign-off with media review.",
+  "cohortDocsRatification": "CohortDocs-1.0 rendered under full 12-protocol compliance. The people are entering. The language is returning home.",
+  "@cohortDocsRatification": {
+    "description": "Audit log message after PDF generation"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "schema_version": "vPilotHouseholdSeeding-1.0",
+  "protocol_gateway_compliant": true,
+  "household_id": "HH01",
+  "seeding_cohort": "pilot-household-1-2026",
+  "device_pair": {
+    "ipad": "family-ipad-HH01",
+    "elder_phone": "elder-phone-HH01",
+    "primary_mode": "little_ones"
+  },
+  "rpc": {
+    "create_claim": "create_household_seed_claim_secure",
+    "live_observation": "submit_live_pilot_observation_secure"
+  },
+  "mobile_service": "HouseholdSeedingService",
+  "routes": {
+    "dashboard_seeding": "/dashboard",
+    "pilot_logging": "/pilot-logging",
+    "keeper_council": "/keeper-council-live",
+    "keeper_signoff": "/keeper-pilot-signoff"
+  },
+  "seven_day_calendar": "keeper_7day_review_calendar.md",
+  "audit_outcomes": [
+    "Household seed claim created | Protocols 2,9 enforced",
+    "Household 1 seeding active | Little Ones iPad + Elder phone paired",
+    "Household 1 successfully completed under full sovereignty"
+  ],
+  "profile_field": {
+    "table": "user_profiles",
+    "column": "seeding_cohort",
+    "value": "HH01"
+  },
+  "required_protocols": ["1", "2", "3", "8", "9", "11", "12"]
+}

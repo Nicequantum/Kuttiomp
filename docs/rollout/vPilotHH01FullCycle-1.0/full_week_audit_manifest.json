@@ -1,0 +1,37 @@
+{
+  "version": "vPilotHH01FullCycle-1.0",
+  "household_id": "HH01",
+  "seeding_cohort": "HH01",
+  "monitor_session_id": "sealed-48hr-v1.0",
+  "protocol_gateway_compliant": true,
+  "protocols_enforced": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+  "pilot_hh01_full_cycle_version": "1.0",
+  "seasonal_templates_blocked_until_day7": true,
+  "day3_media_review_unlocked": true,
+  "prerequisite_audit": "HH01 Covenant Sealed – 48hr Integrity Confirmed",
+  "day_plan": [
+    {"day": 1, "journey_step": "onboarding", "land_context": null},
+    {"day": 2, "journey_step": "search_land", "land_context": null},
+    {"day": 3, "journey_step": "lesson_complete", "land_context": "narragansett_coastal_lesson"},
+    {"day": 4, "journey_step": "elder_contribute", "land_context": "elder_land_contribution"},
+    {"day": 5, "journey_step": "offline_toggle", "land_context": "offline_land_cache"},
+    {"day": 6, "journey_step": "profile_audit", "land_context": "profile_land_audit"},
+    {"day": 7, "journey_step": "pilot_logging", "land_context": "seven_day_reflection"}
+  ],
+  "required_signoffs": {
+    "day3_media_review": true,
+    "day7_covenant_seal": true
+  },
+  "final_audit_message": "HH01 Seven-Day Walk Complete",
+  "rpc_calls": [
+    "seal_covenant_secure",
+    "submit_live_pilot_observation_secure",
+    "submit_pilot_feedback_secure",
+    "seal_day7_covenant_secure"
+  ],
+  "mobile_services": {
+    "tracker": "CovenantProgressTracker",
+    "service": "FullCycleService",
+    "store": "FullCycleStore"
+  }
+}

@@ -4,7 +4,7 @@ import 'package:kuttiomp_mobile/core/constants/modes.dart';
 import 'package:kuttiomp_mobile/features/profile/user_profile_service.dart';
 
 // Tribal Maintainer Guide (Protocol 12): governed dashboard domain model (§4).
-// Riverpod providers: `core/di/dashboard_providers.dart` | UI: `presentation/dashboard_page.dart`
+// Riverpod providers: `core/di/dashboard_providers.dart` | UI: `presentation/dashboard_screen.dart`
 
 /// Canonical dashboard type alias (§4).
 typedef Dashboard = DashboardSnapshot;

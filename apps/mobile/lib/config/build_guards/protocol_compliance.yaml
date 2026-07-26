@@ -1,0 +1,87 @@
+# Protocol compliance build guard (§2, §11, §12)
+# Enforced by IntegrityValidator and full_12_protocol_suite_test.dart.
+
+required_guards: 12
+full_coverage: 1.0
+sovereign_release: 1.0
+profile_coverage: 1.0
+production_test_suites:
+  - test/production/
+rollout_test_suites:
+  - test/rollout/
+rollout_coverage: 1.0
+seeding_test_suites:
+  - test/seeding/
+seeding_coverage: 1.0
+pilot_live_test_suites:
+  - test/pilot_live/
+pilot_live_coverage: 1.0
+pilot_cohort_docs: 1.0
+pilot_cohort_docs_path: ../../docs/rollout/vPilotCohortDocs-1.0/
+pilot_cohort_docs_test_filter: cohort_docs
+pilot_household_seeding: 1.0
+pilot_household_seeding_path: ../../docs/rollout/vPilotHouseholdSeeding-1.0/
+pilot_household_seeding_test_filter: household_seeding
+pilot_seeding_monitor: 1.0
+pilot_seeding_monitor_path: ../../docs/rollout/vPilotSeedingMonitor-1.0/
+pilot_seeding_monitor_test_filter: seeding_monitor
+pilot_hh01_full_cycle: 1.0
+pilot_hh01_full_cycle_path: ../../docs/rollout/vPilotHH01FullCycle-1.0/
+pilot_hh01_full_cycle_test_filter: full_cycle
+pilot_hh01_day4_witness: 1.0
+pilot_hh01_day4_witness_path: ../../docs/rollout/vPilotHH01Day4Witness-1.0/
+pilot_hh01_day4_witness_test_filter: day4_witness
+pilot_day7_prep: 1.0
+pilot_day7_prep_path: ../../docs/rollout/vPilotHH01Day4Witness-1.0/vPilotDay7ReflectionPrep-1.0/
+pilot_day7_prep_test_filter: day7_prep
+minimum_protocol_test_coverage: 0.98
+profile_test_suites:
+  - test/features/profile/
+minimum_package_support_years: 5
+isar_lts:
+  constitutional_version: "^4.1.0"
+  note: "Master Architecture §12 pin; resolve via flutter pub get on tribal toolchain"
+elder_recording_test_suites:
+  - test/features/profile/elder_recording_protocol_test.dart
+  - test/features/profile/elder_recording_golden_test.dart
+search_test_suites:
+  - test/features/search/
+search_coverage: 1.0
+lessons_test_suites:
+  - test/features/lessons/
+phrases_test_suites:
+  - test/features/phrases/
+phrases_coverage: 1.0
+lexeme_test_suites:
+  - test/features/lexeme/
+lexeme_coverage: 1.0
+dashboard_test_suites:
+  - test/features/dashboard/
+dashboard_coverage: 1.0
+golden_test_suites:
+  - test/golden/golden_assets_test.dart
+  - test/golden/dashboard_contribute_flow_golden_test.dart
+  - test/golden/
+  - test/helpers/
+  - test/features/profile/elder_recording_flow_integration_test.dart
+  - test/features/profile/elder_recording_golden_test.dart
+foundation_test_suites:
+  - test/protocol_compliance/
+  - test/mode_consistency/
+  - test/offline/
+  - test/foundation/
+minimum_golden_test_coverage: 1.0
+flutter_sdk_note: "Flutter SDK must be on PATH for local verification; artifacts structurally complete per §11"
+required_protocols:
+  - "1"  # Speaker Attribution
+  - "2"  # Elder Approval
+  - "3"  # Generational Access Tiers
+  - "4"  # Sacred Content Protection
+  - "5"  # Clan Visibility
+  - "6"  # Land Contextualization
+  - "7"  # Oral Tradition Primacy
+  - "8"  # Living Authority
+  - "9"  # Data Sovereignty
+  - "10" # Non-Gamification
+  - "11" # Accessibility
+  - "12" # Cultural Integrity

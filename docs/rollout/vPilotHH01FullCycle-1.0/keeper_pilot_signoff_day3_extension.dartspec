@@ -1,0 +1,26 @@
+# Keeper Pilot Sign-Off — Day 3 Extension
+
+**vPilotHH01FullCycle-1.0 | Canonical: `lib/features/pilot_live/presentation/keeper_live_signoff_view.dart`**
+
+## UI Binding
+
+| Element | Behavior |
+|---------|----------|
+| Day 3 gate | Blocks view when `day3MediaReviewUnlocked == false` |
+| HH01 filter | Shows only `householdId == 'HH01'` observations |
+| Authorization banner | "Day 3 media review authorized for HH01" |
+| Sign-off action | `FullCycleService.completeDay3MediaSignoff()` |
+
+## RPC Chain
+
+1. `review_48hr_observations_secure` (monitor phase)
+2. `seal_covenant_secure` (48hr seal)
+3. `submit_live_pilot_observation_secure` (Day 3 observation)
+4. `submit_pilot_feedback_secure` (Keeper media review)
+5. `seal_day7_covenant_secure` (Day 7 final seal)
+
+## Protocol Enforcement
+
+- Protocol 2: Elder Approval — sign-off requires elder mode
+- Protocol 6: Land Contextualization — Days 3–7 carry `land_context` metadata
+- Protocol 12: Cultural Integrity — seasonal templates blocked until Day 7

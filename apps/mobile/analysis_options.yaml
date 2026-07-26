@@ -1,6 +1,22 @@
 include: package:flutter_lints/flutter.yaml
 
+# Protocol 10 – Non-Gamification & Dignity (MAD v2.0)
+# Runtime: KuttiompDesignSystem.assertDignity / DignityGuard
+# CI: dart run scripts/dignity_lint.dart + test/protocol_compliance/dignity_lint_test.dart
+# Spec: lib/config/build_guards/dignity_lint.yaml
+# Protocol compliance: lib/config/build_guards/protocol_compliance.yaml
+#
+# This serves our people by making dignity violations fail the build before
+# any gamified surface can ship to elders or youth through 2050.
+
+analyzer:
+  errors:
+    # Treat invalid_use patterns as errors when available via custom lint later.
+    todo: ignore
+
 linter:
   rules:
     prefer_const_constructors: true
     avoid_print: true
+    # Keep solemn, maintainable code surfaces for tribal stewards.
+    prefer_single_quotes: true

@@ -4,6 +4,7 @@ import 'package:kuttiomp_mobile/core/constants/modes.dart';
 import 'package:kuttiomp_mobile/core/constants/protocols.dart';
 import 'package:kuttiomp_mobile/core/supabase/audited_repository.dart';
 import 'package:kuttiomp_mobile/core/supabase/rpc_definitions.dart';
+import 'package:kuttiomp_mobile/features/lexeme/data/isar_lexeme_collection.dart';
 import 'package:kuttiomp_mobile/features/lexeme/domain/lexeme.dart';
 import 'package:kuttiomp_mobile/features/profile/domain/approved_contributions_store.dart';
 
@@ -16,7 +17,10 @@ class LexemeRepository extends AuditedRepository {
   LexemeRepository({
     super.gateway,
     super.auditedClient,
-  });
+    IsarLexemeCollection? isarCollection,
+  }) : _isarCollection = isarCollection ?? IsarLexemeCollection();
+
+  final IsarLexemeCollection _isarCollection;
 
   static const String loadLogMessage = 'Lexeme loaded | Protocol 1,7,9 enforced';
 
@@ -97,8 +101,33 @@ class LexemeRepository extends AuditedRepository {
       clanScope: ['kuttiomp_clan'],
       visibleToTiers: GenerationalTierBitmask.elder,
       canonicalStage: MasteryStage.deepening.id,
+      approvalChain: const ['elder-keeper', 'ceremony-council'],
+      encryptedSacredPayload: 'encrypted-sacred-stub',
     ),
   ];
+
+  /// Mirrors permitted lexemes to encrypted Isar offline store (§7).
+  Future<LexemeMirrorSyncResult> mirrorOffline({
+    required KuttiompMode mode,
+    String? canonicalStage,
+    bool clanReauthenticated = true,
+    Future<bool> Function({
+      required String recordId,
+      required bool sacredFlag,
+    })? onSacredConsentRequired,
+  }) {
+    return _isarCollection.syncFromRepository(
+      repository: this,
+      mode: mode,
+      canonicalStage: canonicalStage,
+      clanReauthenticated: clanReauthenticated,
+      onSacredConsentRequired: onSacredConsentRequired,
+    );
+  }
+
+  /// Reads lexemes from offline mirror when RPC unavailable.
+  Future<List<LexemeModel>> readOfflineMirror(int tierBitmask) =>
+      _isarCollection.readOfflineForTier(tierBitmask);
 
   /// Watches lexemes for generational tier (Protocol 3).
   Future<List<Lexeme>> watchLexemesForTier(int tierBitmask, {String? stage}) async {
@@ -206,7 +235,14 @@ class LexemeRepository extends AuditedRepository {
       }
       return lexemes;
     } catch (_) {
-      final lexemes = _offlineCorpus
+      var lexemes = await readOfflineMirror(effectiveMode.tierBitmask);
+      if (lexemes.isEmpty) {
+        lexemes = _offlineCorpus
+            .where((l) => stage == null || l.canonicalStage == stage)
+            .where((l) => _isPermitted(l, effectiveMode, effectiveClan))
+            .toList();
+      }
+      lexemes = lexemes
           .where((l) => stage == null || l.canonicalStage == stage)
           .where((l) => _isPermitted(l, effectiveMode, effectiveClan))
           .where((l) => _matchesQuery(l, normalizedQuery))

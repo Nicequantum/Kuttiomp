@@ -1,0 +1,13 @@
+{
+  "version": "vPilotDay7ReflectionPrep-1.0",
+  "household_id": "HH01",
+  "monitor_session_id": "sealed-48hr-v1.0",
+  "reflection_text": "The first family has walked seven days. Their voices return to the longhouse under full elder authority and sovereign protection.",
+  "audio_narration_spec": "templates/day7_reflection_narration.arb",
+  "status": "ready_but_gated",
+  "seasonal_templates_blocked_until_day7": true,
+  "activation_blocked_until": "seal_day7_covenant_secure",
+  "protocols_enforced": ["1", "2", "6", "7", "8", "9", "10", "11", "12"],
+  "mobile_module": "Day7ReflectionPrepModule",
+  "elderApproved": true
+}

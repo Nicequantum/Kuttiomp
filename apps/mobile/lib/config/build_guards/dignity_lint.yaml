@@ -1,0 +1,56 @@
+# Protocol 10 – Non-Gamification & Dignity (MAD v2.0 Stream A CI lock)
+# Enforced by:
+#   1. KuttiompDesignSystem.assertDignity() / DignityGuard (runtime)
+#   2. scripts/dignity_lint.dart (CI scanner, exit 1 on violation)
+#   3. test/protocol_compliance/dignity_lint_test.dart
+#   4. IntegrityValidator at bootstrap
+
+ci:
+  fail_build_on_violation: true
+  scanner: scripts/dignity_lint.dart
+  test: test/protocol_compliance/dignity_lint_test.dart
+
+rules:
+  prohibit_widgets:
+    - NoPlayWidget
+    - GamificationBadge
+    - PointsCounter
+    - StreakTracker
+    - Leaderboard
+    - PlayfulMascot
+    - ConfettiWidget
+    - AchievementBadge
+    - CompetitiveRank
+  prohibit_patterns:
+    - emoji
+    - play_icon_decorative
+    - cartoon_asset
+    - achievement_animation
+    - streak_flame
+    - points_score
+    - competitive_rank
+    - leaderboard
+  prohibit_assets:
+    - playful_mascots
+    - achievement_badges
+    - confetti_animations
+    - emoji_packs
+    - cartoon_characters
+  allowed_asset_prefixes:
+    - assets/images/land_
+    - assets/images/turtle_
+    - assets/images/river_
+    - assets/fonts/traditional_
+  required_theme:
+    minimum_font_size_pt: 24
+    elder_minimum_font_size_pt: 32
+    high_contrast: true
+    wcag_level: "2.2 AA"
+  tribal_review_gate: true
+  # Absolute: no gamification language in UX copy or metrics (Stream D Continuity Panel).
+  prohibit_ux_copy:
+    - "points"
+    - "streak"
+    - "leaderboard"
+    - "level up"
+    - "high score"
