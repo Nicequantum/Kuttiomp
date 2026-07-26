@@ -1,6 +1,6 @@
 # Keeper Action Required — Lexicon Target & Priority Domains
 
-**Status:** Not present in repository or Supabase configuration as of Stream D (5 July 2026).
+**Status:** Not present in repository or Supabase configuration as of Stream D / C (5 July 2026).
 
 ## What is missing
 
@@ -8,6 +8,21 @@
 |------|--------|
 | Target lexicon size (`target_lexemes`) | **Not configured** — continuity percentage remains `null` |
 | Priority domains for entry | **Not configured** |
+
+## Migration step (stewards)
+
+Apply stewardship RPCs in Supabase SQL Editor (or CLI):
+
+```text
+supabase/migrations/005_stewardship_continuity_views.sql
+```
+
+Functions:
+
+- `speaker_stewardship_summary(p_speaker_id uuid)`
+- `corpus_continuity_metrics()` — returns absolute approved lexemes; `target_lexemes` and `continuity_pct` are **NULL** until Keepers configure a target.
+
+Flutter `StewardshipRepository` tries live RPC via Supabase client, then falls back to absolute counts derived from offline/approved non-sacred lexemes. Admin Continuity panel uses absolute counts; wire live RPC after migration.
 
 ## What stewards must not do
 
