@@ -89,6 +89,7 @@ kuttiomp/
 
 | Document | Audience |
 |----------|----------|
+| [docs/BACKEND_ASSESSMENT_AND_LANGUAGE_BUILDING_ROADMAP.md](docs/BACKEND_ASSESSMENT_AND_LANGUAGE_BUILDING_ROADMAP.md) | Keepers & maintainers — honest readiness assessment, gaps, and upgrade tracks |
 | [FOUNDATION_COMPLETE.md](FOUNDATION_COMPLETE.md) | All — architecture summary, foundation verification |
 | [SETUP.md](SETUP.md) | Developers — installation & troubleshooting |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Contributors — cultural protocols for code |
