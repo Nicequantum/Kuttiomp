@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.auth import require_keeper
 from app.models.schemas import GrokLinguisticRequest, GrokLinguisticResponse
 from app.services.grok import query_grok
+from app.services.grok_service import grok_service
 
 router = APIRouter(
     prefix="/ai",
@@ -17,6 +18,7 @@ async def linguistic_assistance(request: GrokLinguisticRequest):
     if request.prompt_type not in valid_types:
         raise HTTPException(status_code=400, detail=f"prompt_type must be one of: {', '.join(valid_types)}")
 
+    grok_service.require_configured()
     try:
         response_text, interaction_id = await query_grok(
             prompt_type=request.prompt_type,
@@ -24,6 +26,8 @@ async def linguistic_assistance(request: GrokLinguisticRequest):
             speaker_context_id=str(request.speaker_context_id) if request.speaker_context_id else None,
             lexical_entry_id=str(request.lexical_entry_id) if request.lexical_entry_id else None,
         )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Grok API error: {str(e)}")
 

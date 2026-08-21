@@ -61,13 +61,13 @@ the verified token, never from the client.
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    if not settings.supabase_service_role_key or not settings.grok_api_key:
-        raise ValueError("Missing SUPABASE_SERVICE_ROLE_KEY or GROK_API_KEY")
-    try:
-        supabase = get_supabase()
-        supabase.table("foundation_status").select("foundation_ready").execute()
-    except Exception as e:
-        print(f"DB warning on startup: {e}")
+    settings.log_boot_integrations()
+    if settings.supabase_service_configured:
+        try:
+            supabase = get_supabase()
+            supabase.table("foundation_status").select("foundation_ready").execute()
+        except Exception as e:
+            print(f"DB warning on startup: {e}")
     yield
 
 

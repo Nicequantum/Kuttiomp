@@ -8,6 +8,12 @@ EXPECTED_MIGRATION = "004"
 
 
 async def check_database() -> dict:
+    if not settings.supabase_service_configured:
+        return {
+            "status": "not_configured",
+            "provider": "supabase",
+            "speakers_accessible": False,
+        }
     try:
         supabase = get_supabase()
         result = supabase.table("speakers").select("id", count="exact").limit(1).execute()
@@ -51,10 +57,10 @@ async def get_health() -> dict:
         "version": API_VERSION,
         "cultural_protocols": 12,
         "database": db,
-        "grok_configured": grok_service_is_configured(),
+        "grok_configured": settings.grok_configured,
+        "integrations": settings.integration_flags(),
     }
 
 
 def grok_service_is_configured() -> bool:
-    from app.services.grok_service import grok_service
-    return grok_service.is_configured()
+    return settings.grok_configured

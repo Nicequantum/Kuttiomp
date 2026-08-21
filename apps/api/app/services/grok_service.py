@@ -3,6 +3,7 @@
 import httpx
 
 from app.config import settings
+from app.exceptions import ServiceUnavailableError
 
 KUTTIOMP_SYSTEM_PROMPT = """You are a linguistic assistant for Kuttiomp, the Narragansett Language Revitalization Platform.
 
@@ -21,16 +22,25 @@ TEST_PROMPT = "Respond with exactly: Kuttiomp Grok connection verified."
 
 class GrokService:
     def __init__(self) -> None:
-        self.api_key = settings.grok_api_key
-        self.base_url = settings.grok_api_base_url.rstrip("/")
         self.model = "grok-3-latest"
 
+    @property
+    def api_key(self) -> str | None:
+        return settings.grok_api_key
+
+    @property
+    def base_url(self) -> str:
+        return settings.grok_api_base_url.rstrip("/")
+
     def is_configured(self) -> bool:
-        return bool(self.api_key and self.api_key not in ("", "xai-your-key"))
+        return settings.grok_configured
+
+    def require_configured(self) -> None:
+        if not self.is_configured():
+            raise ServiceUnavailableError("GROK_API_KEY is not configured")
 
     async def _chat(self, user_content: str, max_tokens: int = 1024) -> str:
-        if not self.is_configured():
-            raise ValueError("GROK_API_KEY is not configured")
+        self.require_configured()
 
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(

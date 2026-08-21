@@ -176,7 +176,8 @@ packages/
 
 | Symptom | Fix |
 |---------|-----|
-| `Settings` validation error on API start | All required vars in `apps/api/.env` must be set |
+| API starts but `/api/v1/public/lexicon` is 503 | Set `SUPABASE_URL` and `SUPABASE_ANON_KEY` |
+| Grok / linguistic routes return 503 | Set `GROK_API_KEY` (process boot does not require it) |
 | Admin shows blank data | `NEXT_PUBLIC_API_URL=http://localhost:8000` |
 
 ---

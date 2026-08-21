@@ -80,7 +80,7 @@ def _parse_uuid(value: object) -> UUID | None:
 
 
 def _dev_auth_enabled() -> bool:
-    return bool(settings.auth_dev_secret) and settings.api_env != "production"
+    return settings.auth_dev_enabled
 
 
 def _lookup_speaker(*, clerk_user_id: str | None) -> dict | None:
@@ -117,7 +117,7 @@ def _fetch_clerk_jwks() -> dict:
         return _clerk_jwks_cache
     url = settings.clerk_jwks_url or "https://api.clerk.com/v1/jwks"
     headers: dict[str, str] = {}
-    if "api.clerk.com" in url:
+    if settings.clerk_secret_key and "api.clerk.com" in url:
         headers["Authorization"] = f"Bearer {settings.clerk_secret_key}"
     with httpx.Client(timeout=10.0) as client:
         response = client.get(url, headers=headers)
