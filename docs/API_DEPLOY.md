@@ -37,7 +37,7 @@ Service root is **`apps/api`**. The image is `apps/api/Dockerfile` (Python 3.12 
 |------|------|
 | `apps/api/Dockerfile` | Production image. Build context = `apps/api`. |
 | `apps/api/.dockerignore` | Keeps `.venv`, tests, `.env`, PM2 files out of the image. |
-| `railway.toml` (repo root) | Builder, watch path `apps/api/**`, start command, `/health`. |
+| `railway.toml` (repo root) | Builder, watch path `apps/api/**`, `/health` (no startCommand — Dockerfile CMD binds `$PORT`). |
 | `apps/api/railway.toml` | Same deploy settings if you set Config File to `/apps/api/railway.toml`. |
 
 Railway Config as Code may be ignored on brand-new services. **Set the same values in the dashboard** even if the files are present.
@@ -54,9 +54,8 @@ Railway Config as Code may be ignored on brand-new services. **Set the same valu
    - Builder: **Dockerfile**
    - Leave Dockerfile path empty (Railway picks `apps/api/Dockerfile` because Root Directory is `apps/api`). Do not set Root Directory to `/` — that Dockerfile copies `requirements.txt` from the build context, which is only correct when the context is `apps/api`.
 5. **Settings → Deploy**
-   - Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - Leave Start command empty so Railway uses the Dockerfile `CMD` (`sh -c` expands `${PORT:-8000}`); do not set `uvicorn ... --port $PORT` because Railway does not shell-expand that string.
    - Healthcheck path: `/health` (alternate: `/api/v1/public/health`)
-   - Railway injects `PORT`; do not hard-code `8000` in the start command.
 6. **Settings → Networking**: generate a public domain. The public URL is `https://<service>.up.railway.app` (or your custom domain). **No trailing slash.**
 7. **Variables**: add the names below. Copy values from your private `apps/api/.env` — **never commit secrets or paste real keys into git**.
 8. Deploy, then open `https://<public-host>/health` and `https://<public-host>/api/v1/public/health`.
