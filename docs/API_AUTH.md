@@ -45,7 +45,7 @@ See `.env.example` and `apps/api/.env.example`.
 
 | Variable | Purpose |
 |----------|---------|
-| `CLERK_SECRET_KEY` | Existing Clerk secret; used to fetch JWKS from `https://api.clerk.com/v1/jwks` |
+| `CLERK_SECRET_KEY` | Existing Clerk secret; used to fetch JWKS from `https://api.clerk.com/v1/jwks`. Optional at process boot — keeper routes stay 401 if unset. |
 | `CLERK_JWKS_URL` | Optional override (e.g. `{issuer}/.well-known/jwks.json`) |
 | `CLERK_ISSUER` | Optional issuer check for Clerk tokens |
 | `SUPABASE_JWT_SECRET` | Optional. JWT secret from Supabase Settings → API. Needed to accept Flutter tokens. |

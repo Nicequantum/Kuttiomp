@@ -60,19 +60,26 @@ Railway Config as Code may be ignored on brand-new services. **Set the same valu
 7. **Variables**: add the names below. Copy values from your private `apps/api/.env` — **never commit secrets or paste real keys into git**.
 8. Deploy, then open `https://<public-host>/health` and `https://<public-host>/api/v1/public/health`.
 
-### Required environment variables (names only)
+### Environment variables (names only)
 
-Values live in `apps/api/.env.example`. Set these on the Railway service:
+Values live in `apps/api/.env.example`. Set these on the Railway service. The API process will start if feature secrets are missing; `/health` is the healthcheck.
 
 | Name | Notes |
 |------|--------|
-| `SUPABASE_URL` | Required. Startup and `/health` use Supabase. |
-| `SUPABASE_ANON_KEY` | Required. |
-| `SUPABASE_SERVICE_ROLE_KEY` | Required. App refuses to start if missing. |
-| `CLERK_SECRET_KEY` | Required. Keeper / admin JWT. |
-| `GROK_API_KEY` | Required. App refuses to start if missing. |
+| `API_ENV` | Set `production` on Railway. Disables `AUTH_DEV_SECRET` even if it is accidentally present. |
 | `API_CORS_ORIGINS` | Required in production. Must include `https://kuttiomp-learn.vercel.app` and `https://kuttiomp-admin.vercel.app`. Copy the comma-separated default from `.env.example` and add preview origins if needed. |
-| `API_ENV` | Set `production` on Railway. |
+
+The process **starts without** Grok, Clerk, or Supabase. `/health` and `/api/v1/public/health` always answer. Missing integrations are logged at boot (`kuttiomp boot integrations: …`) and reported on `/health` as `integrations`.
+
+Feature secrets (set these for the matching routes; missing values return **503**, they do not crash the process):
+
+| Name | Notes |
+|------|--------|
+| `SUPABASE_URL` | Public lexicon and keeper writes. List/get `/api/v1/public/lexicon` return 503 if unset. |
+| `SUPABASE_ANON_KEY` | Public / learner reads (RLS). |
+| `SUPABASE_SERVICE_ROLE_KEY` | Privileged server jobs after FastAPI has verified the actor. |
+| `CLERK_SECRET_KEY` | Keeper / admin JWT verification. Keeper routes stay **401** if Clerk is unset — they are not opened. |
+| `GROK_API_KEY` | Grok / linguistic routes. Those routes return 503 if unset. |
 
 Optional (same names as `.env.example`):
 
@@ -108,7 +115,7 @@ Use the Railway HTTPS origin **with no trailing slash** (example shape only: `ht
 docker build -t kuttiomp-api ./apps/api
 ```
 
-Do not `docker run` with real keys in the command line history if you can avoid it. Runtime still needs the variables above; `Settings()` and the FastAPI lifespan require `SUPABASE_*`, `CLERK_SECRET_KEY`, and `GROK_API_KEY`.
+Do not `docker run` with real keys in the command line history if you can avoid it. `Settings()` and the FastAPI lifespan no longer require Grok, Clerk, or Supabase to import. Feature routes return 503 when their secrets are missing.
 
 If Docker is not installed (this Cloud Agent workspace does not ship a daemon), the Dockerfile is still the deploy artifact — GitHub Actions job **API Docker build** compiles it on PRs.
 

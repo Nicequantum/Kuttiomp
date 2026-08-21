@@ -175,8 +175,8 @@ def _corpus_version(rows: list[dict]) -> str:
 
 
 def get_public_health() -> dict:
-    supabase = get_anon_supabase()
     try:
+        supabase = get_anon_supabase()
         result = apply_publish_gate(
             supabase.table("lexical_entries").select("id, updated_at", count="exact")
         ).order("updated_at", desc=True).limit(1).execute()

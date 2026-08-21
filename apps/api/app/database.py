@@ -3,6 +3,14 @@ from functools import lru_cache
 from supabase import Client, create_client
 
 from app.config import settings
+from app.exceptions import ServiceUnavailableError
+
+
+def _require_supabase_url_and_key(key: str | None, *, missing: str) -> tuple[str, str]:
+    url = settings.supabase_url
+    if not url or not key:
+        raise ServiceUnavailableError(missing)
+    return url, key
 
 
 @lru_cache
@@ -13,18 +21,30 @@ def get_supabase() -> Client:
     lookups, signed-URL minting, and migrations. Do not use for anonymous
     learner reads — those must go through ``get_anon_supabase`` so RLS applies.
     """
-    return create_client(settings.supabase_url, settings.supabase_service_role_key)
+    url, key = _require_supabase_url_and_key(
+        settings.supabase_service_role_key,
+        missing="Supabase service role is not configured",
+    )
+    return create_client(url, key)
 
 
 @lru_cache
 def get_anon_supabase() -> Client:
     """Anon-key client. PostgREST runs as ``anon`` and RLS can constrain rows."""
-    return create_client(settings.supabase_url, settings.supabase_anon_key)
+    url, key = _require_supabase_url_and_key(
+        settings.supabase_anon_key,
+        missing="Supabase is not configured",
+    )
+    return create_client(url, key)
 
 
 def get_user_supabase(access_token: str) -> Client:
     """Anon-key client carrying a Supabase user JWT so RLS sees ``authenticated``."""
-    client = create_client(settings.supabase_url, settings.supabase_anon_key)
+    url, key = _require_supabase_url_and_key(
+        settings.supabase_anon_key,
+        missing="Supabase is not configured",
+    )
+    client = create_client(url, key)
     client.postgrest.auth(access_token)
     return client
 
