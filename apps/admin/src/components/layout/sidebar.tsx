@@ -137,6 +137,7 @@ export function Sidebar() {
           href={getLearnAppUrl()}
           target="_blank"
           rel="noreferrer"
+          title="Open the learner PWA (kuttiomp-learn)"
           className="mode-nav-link flex items-center gap-3 px-3 py-2.5 font-medium"
           style={{
             fontSize: "var(--mode-font-body)",

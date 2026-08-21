@@ -39,6 +39,7 @@ class PublicHealthResponse(BaseModel):
     service: str = "kuttiomp-public"
     corpusVersion: Optional[str] = None
     wordCount: int = 0
+    reason: Optional[str] = None
 
 
 class PublicLexiconResponse(BaseModel):

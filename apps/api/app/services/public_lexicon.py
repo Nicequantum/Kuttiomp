@@ -169,13 +169,15 @@ def get_public_health() -> dict:
             "service": "kuttiomp-public",
             "corpusVersion": _corpus_version(rows),
             "wordCount": result.count if result.count is not None else len(rows),
+            "reason": None,
         }
     except Exception:
         return {
             "ok": False,
             "service": "kuttiomp-public",
-            "corpusVersion": _utc_now_iso(),
+            "corpusVersion": None,
             "wordCount": 0,
+            "reason": "living_corpus_unreachable",
         }
 
 
