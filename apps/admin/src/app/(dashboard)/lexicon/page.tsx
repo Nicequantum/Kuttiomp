@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ContinuityPanelLive } from "@/components/stewardship/continuity-panel-live";
+import { PublishForLearnersButton } from "@/components/lexicon/publish-for-learners";
 import { serverApiFetch } from "@/lib/server-api";
 import type { LexicalEntry } from "@kuttiomp/database";
 
@@ -127,10 +128,27 @@ export default async function LexiconPage() {
                     </CardTitle>
                     <p className="text-muted-foreground">{entry.english_gloss}</p>
                   </div>
-                  <div className="flex gap-2">
-                    <Badge variant="secondary">{entry.category}</Badge>
-                    {entry.is_sacred && <Badge variant="sacred">Sacred</Badge>}
-                    <Badge variant="outline">{entry.visibility}</Badge>
+                  <div className="flex flex-col items-end gap-2">
+                    <div className="flex gap-2">
+                      <Badge variant="secondary">{entry.category}</Badge>
+                      {entry.is_sacred && <Badge variant="sacred">Sacred</Badge>}
+                      <Badge variant="outline">{entry.visibility}</Badge>
+                      <Badge variant="outline">{entry.approval_status}</Badge>
+                    </div>
+                    {!usingFallback && (
+                      <PublishForLearnersButton
+                        entry={{
+                          id: entry.id,
+                          word_narragansett: entry.word_narragansett,
+                          english_gloss: entry.english_gloss,
+                          primary_speaker_id: entry.primary_speaker_id,
+                          visibility: entry.visibility,
+                          approval_status: entry.approval_status,
+                          is_sacred: entry.is_sacred,
+                          spiritual_significance: entry.spiritual_significance,
+                        }}
+                      />
+                    )}
                   </div>
                 </div>
               </CardHeader>
