@@ -31,6 +31,11 @@ class SacredContentError(KuttiompAPIError):
         super().__init__(403, "SACRED_CONTENT_RESTRICTED", message)
 
 
+class ServiceUnavailableError(KuttiompAPIError):
+    def __init__(self, message: str = "Public lexicon is temporarily unavailable"):
+        super().__init__(503, "SERVICE_UNAVAILABLE", message)
+
+
 async def kuttiomp_exception_handler(request: Request, exc: KuttiompAPIError):
     return JSONResponse(
         status_code=exc.status_code,

@@ -9,6 +9,7 @@ from app.routers import (
     land,
     lexicon,
     orthographies,
+    public_lexicon,
     speakers,
 )
 
@@ -23,5 +24,6 @@ __all__ = [
     "land",
     "lexicon",
     "orthographies",
+    "public_lexicon",
     "speakers",
 ]

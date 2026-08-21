@@ -44,6 +44,7 @@ cp apps/admin/.env.example apps/admin/.env
 | `SUPABASE_*` | Supabase Dashboard → Settings → API |
 | `CLERK_*` | Clerk Dashboard → API Keys |
 | `GROK_API_KEY` | xAI Console → API Keys (https://console.x.ai) |
+| `NEXT_PUBLIC_LEARN_APP_URL` | Learner PWA: `http://localhost:8080` locally, `https://kuttiomp-learn.vercel.app` in production |
 
 **Never commit filled `.env` files** — GitHub push protection blocks secrets.
 
@@ -127,10 +128,11 @@ packages/
 | Symptom | Cause | Fix |
 |---------|-------|-----|
 | `API connection refused` | Backend not running | Start uvicorn on port 8000 |
-| `CORS error` in browser | Origin mismatch | Set `API_CORS_ORIGINS=http://localhost:3000` in `apps/api/.env` |
+| `CORS error` in browser | Origin mismatch | Set `API_CORS_ORIGINS` to include the calling origin (defaults: admin `3000` / Learn `8080` + Vercel production URLs). See `docs/API_DEPLOY.md` |
 | `422 VALIDATION_ERROR` | Schema mismatch | Ensure migration 002 applied; check request body against `/docs` |
 | `500` on lexicon create | Missing columns | Apply migration 002 before 003 |
 | `503` on `/api/grok/test` | Missing Grok key | Set `GROK_API_KEY` in `apps/api/.env` |
+| `503` on `/api/v1/public/lexicon` or health `ok: false` | Supabase host unreachable | Confirm the project in `apps/admin/next.config.ts` is unpaused and DNS resolves; keys live in `apps/api/.env` (never commit) |
 | `502` on `/api/grok/test` | Invalid key or xAI outage | Verify key at https://console.x.ai |
 
 ### Authentication
@@ -198,7 +200,7 @@ After setup, confirm:
 | Component | Suggested Platform |
 |-----------|-------------------|
 | Admin | Vercel |
-| API | Railway, Fly.io, Render |
+| API | Railway, Fly.io, Render (not Vercel). Configure env only here — see `docs/API_DEPLOY.md`. |
 | Database | Supabase (managed) |
 | Auth | Clerk |
 
