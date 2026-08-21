@@ -23,6 +23,7 @@ from app.routers import (
     land,
     lexicon,
     orthographies,
+    public_lexicon,
     speakers,
 )
 
@@ -42,6 +43,7 @@ Admin dashboard uses Clerk. Backend operations use Supabase service role.
 ### Key Resources
 - **Speakers** — Multi-generational Knowledge Keepers
 - **Lexicon** — PhD-grade lexical documentation
+- **Public Lexicon** — Unauthenticated `GET /api/v1/public/*` for kuttiomp-learn (publish-gated)
 - **Audio** — Speaker-attributed recordings
 - **Cultural** — Mother Earth, ceremony, TEK contexts
 - **Land** — PostGIS place-based knowledge
@@ -57,7 +59,7 @@ async def lifespan(app: FastAPI):
         supabase = get_supabase()
         supabase.table("foundation_status").select("foundation_ready").execute()
     except Exception as e:
-        print(f"⚠️  DB warning on startup: {e}")
+        print(f"DB warning on startup: {e}")
     yield
 
 
@@ -94,6 +96,7 @@ app.include_router(clans.router, prefix="/api/v1")
 app.include_router(speakers.router, prefix="/api")
 app.include_router(speakers.router, prefix="/api/v1")
 app.include_router(lexicon.router, prefix="/api/v1")
+app.include_router(public_lexicon.router, prefix="/api/v1")
 app.include_router(audio.router, prefix="/api/v1")
 app.include_router(grok.router, prefix="/api/v1")
 app.include_router(cultural.router, prefix="/api/v1")

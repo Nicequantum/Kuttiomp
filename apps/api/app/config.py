@@ -23,7 +23,12 @@ class Settings(BaseSettings):
     # Server
     api_host: str = "0.0.0.0"
     api_port: int = 8000
-    api_cors_origins: str = "http://localhost:3000"
+    api_cors_origins: str = (
+        "http://localhost:3000,"
+        "http://localhost:8080,"
+        "https://kuttiomp-learn.vercel.app,"
+        "https://kuttiomp-admin.vercel.app"
+    )
 
     # Audio
     audio_storage_bucket: str = "kuttiomp-audio"

@@ -109,7 +109,7 @@ kuttiomp/
 - RESTful endpoints under `/api/v1/`
 - Pydantic models for request/response validation
 - OpenAPI documentation at `/docs`
-- CORS configured for admin dashboard origin
+- CORS allowlist for admin (`localhost:3000`, `kuttiomp-admin.vercel.app`) and Learn (`localhost:8080`, `kuttiomp-learn.vercel.app`); see `docs/API_DEPLOY.md`
 - File uploads via `multipart/form-data`
 
 ---
