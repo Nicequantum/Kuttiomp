@@ -51,6 +51,15 @@ def test_unauthenticated_ai_denied(client):
     assert response.status_code == 401
 
 
+def test_learner_get_lexicon_forbidden(client, learner_headers):
+    response = client.get("/api/v1/lexicon", headers=learner_headers)
+    assert response.status_code == 403
+    assert response.json()["error"]["code"] == "FORBIDDEN"
+
+    response = client.get(f"/api/v1/lexicon/{uuid4()}", headers=learner_headers)
+    assert response.status_code == 403
+
+
 def test_learner_post_lexicon_forbidden(client, learner_headers):
     response = client.post(
         "/api/v1/lexicon",

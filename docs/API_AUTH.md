@@ -29,7 +29,7 @@ Authorization: Bearer <jwt>
 
 All other `/api` and `/api/v1` routes return `401 UNAUTHORIZED` without a valid Bearer token.
 
-Writes, bulk import, approvals, AI, Grok test, and sacred mutations additionally require a **keeper** actor (`403` for learners and unlinked Clerk sessions).
+Writes, bulk import, approvals, AI, Grok test, sacred mutations, and **keeper lexicon list/get** (`GET /api/v1/lexicon`) require a **keeper** actor (`403` for learners and unlinked Clerk sessions). Learners read only `GET /api/v1/public/*`.
 
 Keeper/elder is **not** “has a Clerk cookie.” It comes from a `speakers` row (`clerk_user_id` + `role` / `is_elder`):
 

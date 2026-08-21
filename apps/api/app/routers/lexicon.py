@@ -5,7 +5,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, Request
 
-from app.auth import Actor, require_identity, require_keeper
+from app.auth import Actor, require_keeper
 from app.exceptions import ForbiddenError, SacredContentError, ValidationFailedError
 from app.models.lexical_schemas import (
     BulkImportResponse,
@@ -24,7 +24,7 @@ from app.services.lexical import (
 router = APIRouter(
     prefix="/lexicon",
     tags=["Lexicon"],
-    dependencies=[Depends(require_identity)],
+    dependencies=[Depends(require_keeper)],
     responses={
         404: {"description": "Lexical entry not found"},
         422: {"description": "Validation error"},
@@ -61,7 +61,7 @@ async def list_lexical_entries(
     ),
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
-    actor: Actor = Depends(require_identity),
+    actor: Actor = Depends(require_keeper),
 ):
     if include_sacred and not actor.can_view_sacred:
         raise ForbiddenError("Sacred lexicon listing requires an elder session")
@@ -96,7 +96,7 @@ async def list_lexical_entries(
 async def get_entry(
     entry_id: UUID,
     include_sacred: bool = False,
-    actor: Actor = Depends(require_identity),
+    actor: Actor = Depends(require_keeper),
 ):
     if include_sacred and not actor.can_view_sacred:
         raise ForbiddenError("Sacred lexicon reads require an elder session")
