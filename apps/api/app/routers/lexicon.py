@@ -6,7 +6,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query, Request
 
 from app.auth import Actor, require_identity
-from app.exceptions import ForbiddenError, NotFoundError, SacredContentError, ValidationFailedError
+from app.exceptions import ForbiddenError, SacredContentError, ValidationFailedError
 from app.models.lexical_schemas import (
     BulkImportResponse,
     LexicalEntryCreateV2,
