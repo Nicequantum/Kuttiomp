@@ -1,10 +1,15 @@
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
+from app.auth import Actor, require_identity, require_keeper
 from app.database import get_supabase
 
-router = APIRouter(prefix="/cultural", tags=["Cultural Knowledge"])
+router = APIRouter(
+    prefix="/cultural",
+    tags=["Cultural Knowledge"],
+    dependencies=[Depends(require_identity)],
+)
 
 
 @router.get("/contexts")
@@ -41,7 +46,10 @@ async def get_cultural_context(context_id: UUID):
 
 
 @router.post("/contexts", status_code=201)
-async def create_cultural_context(payload: dict):
+async def create_cultural_context(
+    payload: dict,
+    _keeper: Actor = Depends(require_keeper),
+):
     supabase = get_supabase()
     if payload.get("lexical_entry_id"):
         payload["lexical_entry_id"] = str(payload["lexical_entry_id"])

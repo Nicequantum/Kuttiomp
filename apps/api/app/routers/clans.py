@@ -1,11 +1,16 @@
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.auth import Actor, require_identity, require_keeper
 from app.database import get_supabase
 from app.models.schemas import ClanCreate, ClanResponse
 
-router = APIRouter(prefix="/clans", tags=["Clans"])
+router = APIRouter(
+    prefix="/clans",
+    tags=["Clans"],
+    dependencies=[Depends(require_identity)],
+)
 
 
 @router.get("", response_model=list[ClanResponse])
@@ -25,7 +30,10 @@ async def get_clan(clan_id: UUID):
 
 
 @router.post("", response_model=ClanResponse, status_code=201)
-async def create_clan(clan: ClanCreate):
+async def create_clan(
+    clan: ClanCreate,
+    _keeper: Actor = Depends(require_keeper),
+):
     supabase = get_supabase()
     result = supabase.table("clans").insert(clan.model_dump()).execute()
     return result.data[0]

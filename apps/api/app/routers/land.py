@@ -1,10 +1,15 @@
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
+from app.auth import Actor, require_identity, require_keeper
 from app.database import get_supabase
 
-router = APIRouter(prefix="/land", tags=["Land Knowledge"])
+router = APIRouter(
+    prefix="/land",
+    tags=["Land Knowledge"],
+    dependencies=[Depends(require_identity)],
+)
 
 
 @router.get("/sites")
@@ -53,7 +58,10 @@ async def get_site_lexical_entries(site_id: UUID):
 
 
 @router.post("/sites", status_code=201)
-async def create_land_site(payload: dict):
+async def create_land_site(
+    payload: dict,
+    _keeper: Actor = Depends(require_keeper),
+):
     supabase = get_supabase()
     lat = payload.pop("latitude", None)
     lng = payload.pop("longitude", None)

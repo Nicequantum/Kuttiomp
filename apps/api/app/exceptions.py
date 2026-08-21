@@ -31,7 +31,25 @@ class SacredContentError(KuttiompAPIError):
         super().__init__(403, "SACRED_CONTENT_RESTRICTED", message)
 
 
+class ServiceUnavailableError(KuttiompAPIError):
+    def __init__(self, message: str = "Public lexicon is temporarily unavailable"):
+        super().__init__(503, "SERVICE_UNAVAILABLE", message)
+
+
+class UnauthorizedError(KuttiompAPIError):
+    def __init__(self, message: str = "Authentication required"):
+        super().__init__(401, "UNAUTHORIZED", message)
+
+
+class ForbiddenError(KuttiompAPIError):
+    def __init__(self, message: str = "Insufficient cultural authority for this action"):
+        super().__init__(403, "FORBIDDEN", message)
+
+
 async def kuttiomp_exception_handler(request: Request, exc: KuttiompAPIError):
+    headers = {}
+    if exc.status_code == 401:
+        headers["WWW-Authenticate"] = "Bearer"
     return JSONResponse(
         status_code=exc.status_code,
         content={
@@ -41,6 +59,7 @@ async def kuttiomp_exception_handler(request: Request, exc: KuttiompAPIError):
                 "details": exc.details,
             }
         },
+        headers=headers,
     )
 
 

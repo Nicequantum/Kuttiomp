@@ -1,11 +1,16 @@
 from uuid import UUID
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 
+from app.auth import Actor, require_keeper
 from app.models.schemas import AudioUploadResponse
 from app.services.audio import approve_recording, upload_audio
 
-router = APIRouter(prefix="/audio", tags=["Audio"])
+router = APIRouter(
+    prefix="/audio",
+    tags=["Audio"],
+    dependencies=[Depends(require_keeper)],
+)
 
 
 @router.post("/upload", response_model=AudioUploadResponse, status_code=201)
@@ -34,8 +39,11 @@ async def upload_audio_recording(
 
 
 @router.post("/{recording_id}/approve")
-async def approve_audio_recording(recording_id: UUID, approved_by: UUID):
-    result = approve_recording(str(recording_id), str(approved_by))
+async def approve_audio_recording(
+    recording_id: UUID,
+    actor: Actor = Depends(require_keeper),
+):
+    result = approve_recording(str(recording_id), str(actor.require_speaker_id()))
     if not result:
         raise HTTPException(status_code=404, detail="Recording not found")
     return result

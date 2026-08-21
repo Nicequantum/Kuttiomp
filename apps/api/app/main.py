@@ -23,6 +23,7 @@ from app.routers import (
     land,
     lexicon,
     orthographies,
+    public_lexicon,
     speakers,
 )
 
@@ -37,11 +38,20 @@ All endpoints operate under the **Twelve Cultural Governance Protocols**.
 Sacred content is restricted from public endpoints.
 
 ### Authentication
-Admin dashboard uses Clerk. Backend operations use Supabase service role.
+Keeper and admin routes require ``Authorization: Bearer <jwt>``.
+Admin sends a Clerk session token (``window.Clerk.session.getToken()``).
+Flutter may send a Supabase access token if ``SUPABASE_JWT_SECRET`` is set.
+``GET /health``, ``GET /``, and ``GET /api/v1/public/*`` stay unauthenticated.
+See ``docs/API_AUTH.md``.
+
+Writes, approvals, bulk import, sacred-inclusive reads, and AI routes reject
+missing or invalid tokens. ``approved_by`` / ``reviewed_by`` are taken from
+the verified token, never from the client.
 
 ### Key Resources
 - **Speakers** — Multi-generational Knowledge Keepers
 - **Lexicon** — PhD-grade lexical documentation
+- **Public Lexicon** — Unauthenticated `GET /api/v1/public/*` for kuttiomp-learn (publish-gated)
 - **Audio** — Speaker-attributed recordings
 - **Cultural** — Mother Earth, ceremony, TEK contexts
 - **Land** — PostGIS place-based knowledge
@@ -57,7 +67,7 @@ async def lifespan(app: FastAPI):
         supabase = get_supabase()
         supabase.table("foundation_status").select("foundation_ready").execute()
     except Exception as e:
-        print(f"⚠️  DB warning on startup: {e}")
+        print(f"DB warning on startup: {e}")
     yield
 
 
@@ -94,6 +104,7 @@ app.include_router(clans.router, prefix="/api/v1")
 app.include_router(speakers.router, prefix="/api")
 app.include_router(speakers.router, prefix="/api/v1")
 app.include_router(lexicon.router, prefix="/api/v1")
+app.include_router(public_lexicon.router, prefix="/api/v1")
 app.include_router(audio.router, prefix="/api/v1")
 app.include_router(grok.router, prefix="/api/v1")
 app.include_router(cultural.router, prefix="/api/v1")

@@ -2,6 +2,34 @@ import { getApiUrl } from "./api-url";
 
 const API_URL = getApiUrl();
 
+// Browser-only Clerk token. Server components use server-api.ts (auth().getToken()).
+// Do not import @clerk/nextjs/server from this module — it breaks the Vercel client bundle.
+
+type ClerkBrowser = {
+  Clerk?: {
+    session?: {
+      getToken: () => Promise<string | null>;
+    };
+  };
+};
+
+async function getClerkBearerToken(): Promise<string | null> {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  try {
+    const clerk = (window as ClerkBrowser).Clerk;
+    return (await clerk?.session?.getToken()) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function authHeaders(): Promise<Record<string, string>> {
+  const token = await getClerkBearerToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 const TRANSIENT_STATUS = new Set([502, 503, 504]);
 const MAX_RETRIES = 2;
 const RETRY_DELAY_MS = 1000;
@@ -76,10 +104,12 @@ async function fetchWithRetry(
 }
 
 export async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  const auth = await authHeaders();
   const res = await fetchWithRetry(`${API_URL}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
+      ...auth,
       ...options?.headers,
     },
   });
@@ -89,7 +119,12 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
 }
 
 export async function apiUpload<T>(path: string, formData: FormData): Promise<T> {
-  const res = await fetchWithRetry(`${API_URL}${path}`, { method: "POST", body: formData });
+  const auth = await authHeaders();
+  const res = await fetchWithRetry(`${API_URL}${path}`, {
+    method: "POST",
+    body: formData,
+    headers: auth,
+  });
   if (!res.ok) throw await ApiError.fromResponse(res);
   return res.json();
 }

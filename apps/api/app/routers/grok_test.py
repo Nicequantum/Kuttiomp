@@ -1,8 +1,13 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.auth import require_keeper
 from app.services.grok_service import grok_service
 
-router = APIRouter(prefix="/api/grok", tags=["Grok API"])
+router = APIRouter(
+    prefix="/api/grok",
+    tags=["Grok API"],
+    dependencies=[Depends(require_keeper)],
+)
 
 
 @router.get(
