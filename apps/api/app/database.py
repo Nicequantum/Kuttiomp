@@ -41,4 +41,6 @@ def get_scoped_supabase(actor=None) -> Client:
         return get_anon_supabase()
     if getattr(actor, "access_token", None) and getattr(actor, "issuer", None) == "supabase":
         return get_user_supabase(actor.access_token)
-    return get_supabase()
+    if getattr(actor, "is_keeper", False) or getattr(actor, "is_elder", False):
+        return get_supabase()
+    return get_anon_supabase()

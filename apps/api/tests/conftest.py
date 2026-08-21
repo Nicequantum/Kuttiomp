@@ -29,12 +29,14 @@ def make_dev_token(
     speaker_id: str | None = KEEPER_SPEAKER_ID,
     sub: str = "user_test_keeper",
     is_elder: bool = False,
+    actor_issuer: str = "dev",
 ) -> str:
     payload = {
         "iss": "kuttiomp-dev",
         "sub": sub,
         "role": role,
         "is_elder": is_elder,
+        "actor_issuer": actor_issuer,
     }
     if speaker_id:
         payload["speaker_id"] = speaker_id
@@ -46,10 +48,11 @@ def auth_headers(
     role: str = "keeper",
     speaker_id: str | None = KEEPER_SPEAKER_ID,
     is_elder: bool = False,
+    actor_issuer: str = "dev",
 ) -> dict[str, str]:
     return {
         "Authorization": (
-            f"Bearer {make_dev_token(role=role, speaker_id=speaker_id, is_elder=is_elder)}"
+            f"Bearer {make_dev_token(role=role, speaker_id=speaker_id, is_elder=is_elder, actor_issuer=actor_issuer)}"
         )
     }
 
@@ -73,3 +76,13 @@ def elder_headers():
 @pytest.fixture
 def learner_headers():
     return auth_headers(role="learner", speaker_id=None)
+
+
+@pytest.fixture
+def clerk_non_elder_headers():
+    return auth_headers(
+        role="keeper",
+        speaker_id=KEEPER_SPEAKER_ID,
+        is_elder=False,
+        actor_issuer="clerk",
+    )

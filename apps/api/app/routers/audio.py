@@ -2,14 +2,14 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 
-from app.auth import Actor, require_identity
+from app.auth import Actor, require_keeper
 from app.models.schemas import AudioUploadResponse
 from app.services.audio import approve_recording, upload_audio
 
 router = APIRouter(
     prefix="/audio",
     tags=["Audio"],
-    dependencies=[Depends(require_identity)],
+    dependencies=[Depends(require_keeper)],
 )
 
 
@@ -41,7 +41,7 @@ async def upload_audio_recording(
 @router.post("/{recording_id}/approve")
 async def approve_audio_recording(
     recording_id: UUID,
-    actor: Actor = Depends(require_identity),
+    actor: Actor = Depends(require_keeper),
 ):
     result = approve_recording(str(recording_id), str(actor.require_speaker_id()))
     if not result:

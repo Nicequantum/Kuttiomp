@@ -58,7 +58,8 @@ class Actor:
 
     @property
     def can_view_sacred(self) -> bool:
-        return self.is_elder or self.is_keeper
+        """Sacred rows are elder-only. A Clerk cookie or keeper role is not enough."""
+        return self.is_elder
 
     def require_speaker_id(self) -> UUID:
         if self.speaker_id is None:
@@ -135,16 +136,39 @@ def _clerk_signing_key(token: str):
     raise UnauthorizedError("Unable to verify Clerk token")
 
 
+def actor_from_speaker(
+    *,
+    subject: str,
+    issuer: str,
+    speaker: dict | None,
+    access_token: str | None = None,
+    speaker_id_override: UUID | None = None,
+) -> Actor:
+    """Build an Actor from a verified subject + speakers row (no Clerk shortcut)."""
+    is_keeper, is_elder = _roles_from_speaker(speaker)
+    speaker_id = speaker_id_override
+    if speaker_id is None and speaker:
+        speaker_id = _parse_uuid(speaker.get("id"))
+    return Actor(
+        subject=subject,
+        issuer=issuer,
+        speaker_id=speaker_id,
+        is_keeper=is_keeper,
+        is_elder=is_elder,
+        access_token=access_token,
+    )
+
+
 def _verify_dev(token: str) -> Actor:
     claims = jwt.decode(token, settings.auth_dev_secret, algorithms=["HS256"])
     if claims.get("iss") != "kuttiomp-dev":
         raise UnauthorizedError("Invalid development token")
-    role = str(claims.get("role") or "keeper")
+    role = str(claims.get("role") or "")
     is_elder = bool(claims.get("is_elder")) or role == "elder"
     is_keeper = is_elder or role == "keeper"
     return Actor(
         subject=str(claims.get("sub") or "dev-user"),
-        issuer="dev",
+        issuer=str(claims.get("actor_issuer") or "dev"),
         speaker_id=_parse_uuid(claims.get("speaker_id")),
         is_keeper=is_keeper,
         is_elder=is_elder,
@@ -165,17 +189,7 @@ def _verify_clerk(token: str) -> Actor:
     if not subject:
         raise UnauthorizedError("Clerk token missing subject")
     speaker = _lookup_speaker(clerk_user_id=subject)
-    is_keeper, is_elder = _roles_from_speaker(speaker)
-    # Admin portal is Clerk-gated; a valid Clerk session is a keeper session.
-    is_keeper = True
-    return Actor(
-        subject=subject,
-        issuer="clerk",
-        speaker_id=_parse_uuid(speaker["id"]) if speaker else None,
-        is_keeper=is_keeper,
-        is_elder=is_elder,
-        access_token=None,
-    )
+    return actor_from_speaker(subject=subject, issuer="clerk", speaker=speaker)
 
 
 def _verify_supabase(token: str) -> Actor:
@@ -191,13 +205,10 @@ def _verify_supabase(token: str) -> Actor:
     if not subject:
         raise UnauthorizedError("Supabase token missing subject")
     speaker = _lookup_speaker(clerk_user_id=subject)
-    is_keeper, is_elder = _roles_from_speaker(speaker)
-    return Actor(
+    return actor_from_speaker(
         subject=subject,
         issuer="supabase",
-        speaker_id=_parse_uuid(speaker["id"]) if speaker else None,
-        is_keeper=is_keeper,
-        is_elder=is_elder,
+        speaker=speaker,
         access_token=token,
     )
 
@@ -245,4 +256,10 @@ def require_identity(
 def require_keeper(actor: Actor = Depends(require_identity)) -> Actor:
     if not actor.is_keeper:
         raise ForbiddenError("This route is limited to Knowledge Keepers")
+    return actor
+
+
+def require_elder(actor: Actor = Depends(require_identity)) -> Actor:
+    if not actor.is_elder:
+        raise ForbiddenError("Sacred content requires an elder session")
     return actor

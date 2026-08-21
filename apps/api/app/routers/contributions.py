@@ -4,13 +4,13 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from app.auth import Actor, require_identity
+from app.auth import Actor, require_keeper
 from app.database import get_supabase
 
 router = APIRouter(
     prefix="/contributions",
     tags=["Knowledge Contributions"],
-    dependencies=[Depends(require_identity)],
+    dependencies=[Depends(require_keeper)],
 )
 
 
@@ -70,7 +70,7 @@ async def submit_for_review(contribution_id: UUID):
 async def review_contribution(
     contribution_id: UUID,
     payload: ContributionReviewRequest,
-    actor: Actor = Depends(require_identity),
+    actor: Actor = Depends(require_keeper),
 ):
     valid = {"approved", "rejected", "under_review", "requires_elder_review"}
     if payload.status not in valid:

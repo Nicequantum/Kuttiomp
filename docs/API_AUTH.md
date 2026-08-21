@@ -27,11 +27,17 @@ Authorization: Bearer <jwt>
 
 ## Authenticated (everything else)
 
-All other `/api` and `/api/v1` routes — including writes, bulk import, approvals, AI, Grok test, and keeper lexicon reads — return `401 UNAUTHORIZED` without a valid Bearer token.
+All other `/api` and `/api/v1` routes return `401 UNAUTHORIZED` without a valid Bearer token.
 
-- `include_sacred` on `GET /api/v1/lexicon` is honored only for an elder or keeper session. It is not a public query flag.
-- `POST /api/v1/audio/{id}/approve` and contribution review take the actor from the token. A client-supplied `approved_by` / `reviewed_by` UUID is ignored.
-- Approvals require a `speakers` row whose `clerk_user_id` matches the Clerk `sub` (otherwise `403`).
+Writes, bulk import, approvals, AI, Grok test, and sacred mutations additionally require a **keeper** actor (`403` for learners and unlinked Clerk sessions).
+
+Keeper/elder is **not** “has a Clerk cookie.” It comes from a `speakers` row (`clerk_user_id` + `role` / `is_elder`):
+
+- `is_keeper` — speaker role in grandmother / grandfather / sharente / parent / sibling / clan_member (or `is_elder`)
+- `is_elder` — `speakers.is_elder`, elder generation, or grandmother / grandfather / sharente
+- `include_sacred` and sacred-by-id reads are **elder-only**. A keeper or random Clerk account gets `403` and never the row.
+
+Approvals take the actor from the token. A client-supplied `approved_by` / `reviewed_by` UUID is ignored. The Clerk user must be linked on `speakers.clerk_user_id`.
 
 ## Environment
 

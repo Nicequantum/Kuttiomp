@@ -2,6 +2,9 @@ import { getApiUrl } from "./api-url";
 
 const API_URL = getApiUrl();
 
+// Browser-only Clerk token. Server components use server-api.ts (auth().getToken()).
+// Do not import @clerk/nextjs/server from this module — it breaks the Vercel client bundle.
+
 type ClerkBrowser = {
   Clerk?: {
     session?: {
@@ -12,13 +15,7 @@ type ClerkBrowser = {
 
 async function getClerkBearerToken(): Promise<string | null> {
   if (typeof window === "undefined") {
-    try {
-      const { auth } = await import("@clerk/nextjs/server");
-      const session = await auth();
-      return (await session.getToken()) ?? null;
-    } catch {
-      return null;
-    }
+    return null;
   }
   try {
     const clerk = (window as ClerkBrowser).Clerk;

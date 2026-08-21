@@ -2,7 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from app.auth import require_identity
+from app.auth import Actor, require_identity, require_keeper
 
 from app.database import get_supabase
 from app.models.schemas import (
@@ -78,7 +78,10 @@ async def get_speaker(speaker_id: UUID):
 
 
 @router.post("", response_model=SpeakerResponse, status_code=201)
-async def create_speaker(speaker: SpeakerCreate):
+async def create_speaker(
+    speaker: SpeakerCreate,
+    _keeper: Actor = Depends(require_keeper),
+):
     supabase = get_supabase()
     data = speaker.model_dump()
     data["clan_id"] = str(data["clan_id"]) if data.get("clan_id") else None
@@ -90,7 +93,11 @@ async def create_speaker(speaker: SpeakerCreate):
 
 
 @router.patch("/{speaker_id}", response_model=SpeakerResponse)
-async def update_speaker(speaker_id: UUID, update: SpeakerUpdate):
+async def update_speaker(
+    speaker_id: UUID,
+    update: SpeakerUpdate,
+    _keeper: Actor = Depends(require_keeper),
+):
     supabase = get_supabase()
     data = update.model_dump(exclude_unset=True)
     if "clan_id" in data and data["clan_id"]:

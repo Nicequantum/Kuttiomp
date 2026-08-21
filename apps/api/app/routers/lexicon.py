@@ -5,7 +5,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, Request
 
-from app.auth import Actor, require_identity
+from app.auth import Actor, require_identity, require_keeper
 from app.exceptions import ForbiddenError, SacredContentError, ValidationFailedError
 from app.models.lexical_schemas import (
     BulkImportResponse,
@@ -57,14 +57,14 @@ async def list_lexical_entries(
     speaker_id: UUID | None = None,
     include_sacred: bool = Query(
         False,
-        description="Include sacred entries. Honored only for an elder or keeper session.",
+        description="Include sacred entries. Honored only for an elder session.",
     ),
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
     actor: Actor = Depends(require_identity),
 ):
     if include_sacred and not actor.can_view_sacred:
-        raise ForbiddenError("Sacred lexicon listing requires an elder or keeper session")
+        raise ForbiddenError("Sacred lexicon listing requires an elder session")
     supabase = get_scoped_supabase(actor)
     query = supabase.table("lexical_entries").select("*")
 
@@ -99,7 +99,7 @@ async def get_entry(
     actor: Actor = Depends(require_identity),
 ):
     if include_sacred and not actor.can_view_sacred:
-        raise ForbiddenError("Sacred lexicon reads require an elder or keeper session")
+        raise ForbiddenError("Sacred lexicon reads require an elder session")
     entry = get_lexical_entry(entry_id)
     if not include_sacred and (entry.get("is_sacred") or entry.get("visibility") == "sacred"):
         raise SacredContentError()
@@ -140,7 +140,10 @@ def _parse_csv_rows(content: str) -> list[dict]:
     summary="Bulk import lexical entries",
     description="Import many entries via JSON array or CSV upload. Returns a validation report per row.",
 )
-async def bulk_import_entries(request: Request):
+async def bulk_import_entries(
+    request: Request,
+    _keeper: Actor = Depends(require_keeper),
+):
     content_type = request.headers.get("content-type", "")
 
     if "multipart/form-data" in content_type:
@@ -179,7 +182,10 @@ async def bulk_import_entries(request: Request):
     summary="Create lexical entry",
     description="Create a full lexical entry with optional spelling variants, example sentences, and cultural contexts.",
 )
-async def create_entry(entry: LexicalEntryCreateV2):
+async def create_entry(
+    entry: LexicalEntryCreateV2,
+    _keeper: Actor = Depends(require_keeper),
+):
     return create_lexical_entry(entry)
 
 
@@ -188,7 +194,11 @@ async def create_entry(entry: LexicalEntryCreateV2):
     response_model=LexicalEntryResponseV2,
     summary="Update lexical entry",
 )
-async def patch_entry(entry_id: UUID, update: LexicalEntryUpdateV2):
+async def patch_entry(
+    entry_id: UUID,
+    update: LexicalEntryUpdateV2,
+    _keeper: Actor = Depends(require_keeper),
+):
     return update_lexical_entry(entry_id, update)
 
 
