@@ -1,0 +1,26 @@
+# Keep the image to API runtime only.
+.git
+.gitignore
+.venv
+venv
+__pycache__
+*.py[cod]
+*.egg-info
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage
+htmlcov
+tests
+pytest.ini
+.env
+.env.*
+!.env.example
+logs
+*.log
+ecosystem.config.cjs
+package.json
+scripts
+*.md
+railway.toml
+.python-version

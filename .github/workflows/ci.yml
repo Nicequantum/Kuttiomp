@@ -24,6 +24,14 @@ jobs:
       - name: Pytest
         run: pytest -q
 
+  api-image:
+    name: API Docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build apps/api image
+        run: docker build -t kuttiomp-api ./apps/api
+
   admin:
     name: Admin typecheck and build
     runs-on: ubuntu-latest

@@ -1,0 +1,17 @@
+# Railway config for the FastAPI service in apps/api.
+# New Railway services: set these same values in the dashboard (Root Directory
+# does not live in this file). Point Config File at /railway.toml if asked.
+# Watch patterns are always evaluated from the repository root.
+
+[build]
+builder = "DOCKERFILE"
+# Do not set dockerfilePath here. Pair this file with dashboard Root Directory
+# = apps/api so the build context is apps/api and apps/api/Dockerfile is used.
+watchPatterns = ["apps/api/**"]
+
+[deploy]
+startCommand = "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+healthcheckPath = "/health"
+healthcheckTimeout = 100
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
