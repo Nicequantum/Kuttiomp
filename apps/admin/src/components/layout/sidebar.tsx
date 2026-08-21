@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BookOpen,
+  ExternalLink,
   Home,
   Mic,
   Users,
@@ -20,6 +21,7 @@ import { KuttiompBrand } from "@kuttiomp/ui";
 import { ModeSwitcher, useModeTheme } from "@kuttiomp/admin-design-system";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import { getLearnAppUrl } from "@/lib/api-url";
 
 const guideLink = {
   name: "Knowledge Keepers Guide",
@@ -131,6 +133,19 @@ export function Sidebar() {
       >
         <ModeSwitcher />
         <Separator />
+        <a
+          href={getLearnAppUrl()}
+          target="_blank"
+          rel="noreferrer"
+          className="mode-nav-link flex items-center gap-3 px-3 py-2.5 font-medium"
+          style={{
+            fontSize: "var(--mode-font-body)",
+            minHeight: "2.5rem",
+          }}
+        >
+          <ExternalLink className="h-4 w-4 shrink-0" aria-hidden />
+          Open learner demo
+        </a>
         <p
           className="px-1 leading-relaxed text-muted-foreground"
           style={{ fontSize: "calc(var(--mode-font-body) * 0.8)" }}
