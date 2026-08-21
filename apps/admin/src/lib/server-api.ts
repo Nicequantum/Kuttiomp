@@ -1,3 +1,5 @@
+import { auth } from "@clerk/nextjs/server";
+
 import { getApiUrl } from "./api-url";
 
 export type ServerApiResult<T> =
@@ -10,7 +12,14 @@ export async function serverApiFetch<T>(
 ): Promise<ServerApiResult<T>> {
   const url = `${getApiUrl()}${path}`;
   try {
+    const { getToken } = await auth();
+    const token = await getToken();
+    const headers: HeadersInit = {};
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
     const res = await fetch(url, {
+      headers,
       next: options?.revalidate !== undefined ? { revalidate: options.revalidate } : undefined,
     });
     if (!res.ok) {

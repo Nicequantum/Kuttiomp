@@ -1,6 +1,8 @@
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
+
+from app.auth import require_identity
 
 from app.database import get_supabase
 from app.models.schemas import (
@@ -10,7 +12,11 @@ from app.models.schemas import (
     SpeakerUpdate,
 )
 
-router = APIRouter(prefix="/speakers", tags=["Speakers"])
+router = APIRouter(
+    prefix="/speakers",
+    tags=["Speakers"],
+    dependencies=[Depends(require_identity)],
+)
 
 
 @router.get("", response_model=list[SpeakerResponse])

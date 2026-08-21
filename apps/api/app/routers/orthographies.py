@@ -1,8 +1,13 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from app.auth import require_identity
 from app.database import get_supabase
 
-router = APIRouter(prefix="/orthographies", tags=["Orthographies"])
+router = APIRouter(
+    prefix="/orthographies",
+    tags=["Orthographies"],
+    dependencies=[Depends(require_identity)],
+)
 
 
 @router.get("")

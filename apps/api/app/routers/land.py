@@ -1,10 +1,15 @@
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
+from app.auth import require_identity
 from app.database import get_supabase
 
-router = APIRouter(prefix="/land", tags=["Land Knowledge"])
+router = APIRouter(
+    prefix="/land",
+    tags=["Land Knowledge"],
+    dependencies=[Depends(require_identity)],
+)
 
 
 @router.get("/sites")

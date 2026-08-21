@@ -13,8 +13,17 @@ class Settings(BaseSettings):
     supabase_anon_key: str
     supabase_service_role_key: str
 
-    # Clerk
+    # Clerk (admin / Knowledge Keeper portal)
     clerk_secret_key: str
+    clerk_jwks_url: str | None = None
+    clerk_issuer: str | None = None
+
+    # Optional: verify Flutter / Supabase access tokens
+    supabase_jwt_secret: str | None = None
+
+    # Local/test HS256 only. Must stay unset in production.
+    auth_dev_secret: str | None = None
+    api_env: str = "development"
 
     # Grok API
     grok_api_key: str
@@ -33,6 +42,7 @@ class Settings(BaseSettings):
     # Audio
     audio_storage_bucket: str = "kuttiomp-audio"
     audio_max_duration_seconds: int = 300
+    audio_signed_url_ttl_seconds: int = 3600
 
     # Cultural
     sacred_content_requires_elder_approval: bool = True

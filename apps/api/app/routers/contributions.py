@@ -1,11 +1,26 @@
 from datetime import datetime
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel, Field
 
+from app.auth import Actor, require_identity
 from app.database import get_supabase
 
-router = APIRouter(prefix="/contributions", tags=["Knowledge Contributions"])
+router = APIRouter(
+    prefix="/contributions",
+    tags=["Knowledge Contributions"],
+    dependencies=[Depends(require_identity)],
+)
+
+
+class ContributionReviewRequest(BaseModel):
+    status: str
+    review_notes: str | None = None
+    reviewed_by: UUID | None = Field(
+        default=None,
+        description="Ignored. Reviewer is taken from the verified token.",
+    )
 
 
 @router.get("")
@@ -54,21 +69,21 @@ async def submit_for_review(contribution_id: UUID):
 @router.post("/{contribution_id}/review")
 async def review_contribution(
     contribution_id: UUID,
-    reviewed_by: UUID,
-    status: str,
-    review_notes: str | None = None,
+    payload: ContributionReviewRequest,
+    actor: Actor = Depends(require_identity),
 ):
     valid = {"approved", "rejected", "under_review", "requires_elder_review"}
-    if status not in valid:
+    if payload.status not in valid:
         raise HTTPException(status_code=400, detail=f"status must be one of: {valid}")
+    reviewer_id = actor.require_speaker_id()
     supabase = get_supabase()
     result = (
         supabase.table("knowledge_contributions")
         .update({
-            "status": status,
-            "reviewed_by": str(reviewed_by),
+            "status": payload.status,
+            "reviewed_by": str(reviewer_id),
             "reviewed_at": datetime.utcnow().isoformat(),
-            "review_notes": review_notes,
+            "review_notes": payload.review_notes,
         })
         .eq("id", str(contribution_id))
         .execute()

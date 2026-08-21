@@ -1,11 +1,16 @@
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.auth import require_identity
 from app.database import get_supabase
 from app.models.schemas import ClanCreate, ClanResponse
 
-router = APIRouter(prefix="/clans", tags=["Clans"])
+router = APIRouter(
+    prefix="/clans",
+    tags=["Clans"],
+    dependencies=[Depends(require_identity)],
+)
 
 
 @router.get("", response_model=list[ClanResponse])

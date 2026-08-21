@@ -25,6 +25,8 @@ Override in the API host’s env if you add preview domains.
 
 Do not point Learn at `/api/v1/lexicon` (keeper DTO, no publish gate).
 
+Keeper/admin routes require `Authorization: Bearer <jwt>`. See `docs/API_AUTH.md`.
+
 ## Host FastAPI (Railway, Fly, or Render)
 
 1. Create a service from `Nicequantum/Kuttiomp` with root **`apps/api`** (or a start command from that directory).

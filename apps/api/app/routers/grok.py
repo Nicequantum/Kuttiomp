@@ -1,9 +1,14 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.auth import require_identity
 from app.models.schemas import GrokLinguisticRequest, GrokLinguisticResponse
 from app.services.grok import query_grok
 
-router = APIRouter(prefix="/ai", tags=["AI Assistance"])
+router = APIRouter(
+    prefix="/ai",
+    tags=["AI Assistance"],
+    dependencies=[Depends(require_identity)],
+)
 
 
 @router.post("/linguistic", response_model=GrokLinguisticResponse)

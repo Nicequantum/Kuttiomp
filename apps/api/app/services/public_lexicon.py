@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from uuid import UUID
 
 from app.config import settings
-from app.database import get_supabase
+from app.database import get_anon_supabase, get_supabase
 from app.exceptions import NotFoundError, ServiceUnavailableError
 from app.models.public_schemas import PublicAudio, PublicWord
 
@@ -56,7 +56,17 @@ def _audio_url(recording: dict) -> str | None:
         return None
     bucket = recording.get("storage_bucket") or settings.audio_storage_bucket
     try:
-        return get_supabase().storage.from_(bucket).get_public_url(path)
+        # kuttiomp-audio is a private bucket; mint a short-lived signed URL.
+        result = get_supabase().storage.from_(bucket).create_signed_url(
+            path, settings.audio_signed_url_ttl_seconds
+        )
+        if isinstance(result, dict):
+            return (
+                result.get("signedURL")
+                or result.get("signedUrl")
+                or result.get("signed_url")
+            )
+        return None
     except Exception:
         return None
 
@@ -90,12 +100,17 @@ def apply_publish_gate(query):
     )
 
 
+LEARNER_BLOCKED_VISIBILITY = frozenset({"sacred", "elders_only", "clan", "family"})
+
+
 def is_publishable_row(row: dict) -> bool:
     gloss = (row.get("english_gloss") or "").strip()
     spiritual = row.get("spiritual_significance") or "none"
+    visibility = row.get("visibility")
     return (
         row.get("approval_status") == "approved"
-        and row.get("visibility") == "public"
+        and visibility == "public"
+        and visibility not in LEARNER_BLOCKED_VISIBILITY
         and not row.get("is_sacred")
         and spiritual not in RESTRICTED_SPIRITUAL
         and bool(gloss)
@@ -132,6 +147,8 @@ def to_public_word(row: dict, audio: dict | None = None) -> PublicWord:
 def _load_primary_audio(entry_ids: list[str]) -> dict[str, dict]:
     if not entry_ids:
         return {}
+    # audio_recordings has no public SELECT policy; mint metadata only for
+    # entries that already passed the publish gate, then sign the object.
     supabase = get_supabase()
     result = (
         supabase.table("audio_recordings")
@@ -158,7 +175,7 @@ def _corpus_version(rows: list[dict]) -> str:
 
 
 def get_public_health() -> dict:
-    supabase = get_supabase()
+    supabase = get_anon_supabase()
     try:
         result = apply_publish_gate(
             supabase.table("lexical_entries").select("id, updated_at", count="exact")
@@ -185,7 +202,7 @@ def list_public_words(
     domain: str | None = None,
     q: str | None = None,
 ) -> dict:
-    supabase = get_supabase()
+    supabase = get_anon_supabase()
     query = apply_publish_gate(
         supabase.table("lexical_entries").select(ENTRY_SELECT, count="exact")
     )
@@ -223,7 +240,7 @@ def list_public_words(
 
 
 def get_public_word(entry_id: UUID) -> PublicWord:
-    supabase = get_supabase()
+    supabase = get_anon_supabase()
     try:
         result = apply_publish_gate(
             supabase.table("lexical_entries")

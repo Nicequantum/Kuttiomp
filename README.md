@@ -104,14 +104,17 @@ Base URL: `http://localhost:8000/api/v1`
 
 | Resource | Endpoints |
 |----------|-----------|
-| Health | `GET /health` (version + database status) |
-| Grok | `GET /api/grok/test` (API key verification) |
-| Speakers | `GET /speakers`, `GET /speakers/tree` |
-| Lexicon | `GET/POST/PATCH /lexicon`, sub-resources for spellings, examples, contexts |
-| Audio | `POST /audio/upload`, `GET /audio/pending` |
-| Cultural | `GET/POST /cultural/contexts` |
-| Land | `GET/POST /land/sites` |
-| Contributions | `GET/POST /contributions`, review workflow |
+| Health | `GET /health` (version + database status) — no JWT |
+| Public Lexicon | `GET /api/v1/public/lexicon` — publish-gated, no JWT |
+| Grok | `GET /api/grok/test` (API key verification) — keeper JWT |
+| Speakers | `GET /speakers`, `GET /speakers/tree` — keeper JWT |
+| Lexicon | `GET/POST/PATCH /lexicon`, sub-resources for spellings, examples, contexts — keeper JWT |
+| Audio | `POST /audio/upload`, `GET /audio/pending` — keeper JWT |
+| Cultural | `GET/POST /cultural/contexts` — keeper JWT |
+| Land | `GET/POST /land/sites` — keeper JWT |
+| Contributions | `GET/POST /contributions`, review workflow — keeper JWT |
+
+Send `Authorization: Bearer <jwt>` on keeper routes. Admin attaches a Clerk session token automatically. See [docs/API_AUTH.md](docs/API_AUTH.md).
 
 Full interactive documentation: http://localhost:8000/docs
 

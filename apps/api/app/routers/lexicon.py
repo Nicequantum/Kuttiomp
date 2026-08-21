@@ -3,16 +3,17 @@ import io
 import json
 from uuid import UUID
 
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Depends, Query, Request
 
-from app.exceptions import NotFoundError, SacredContentError, ValidationFailedError
+from app.auth import Actor, require_identity
+from app.exceptions import ForbiddenError, NotFoundError, SacredContentError, ValidationFailedError
 from app.models.lexical_schemas import (
     BulkImportResponse,
     LexicalEntryCreateV2,
     LexicalEntryResponseV2,
     LexicalEntryUpdateV2,
 )
-from app.database import get_supabase
+from app.database import get_scoped_supabase, get_supabase
 from app.services.lexical import (
     bulk_create_lexical_entries,
     create_lexical_entry,
@@ -23,10 +24,12 @@ from app.services.lexical import (
 router = APIRouter(
     prefix="/lexicon",
     tags=["Lexicon"],
+    dependencies=[Depends(require_identity)],
     responses={
         404: {"description": "Lexical entry not found"},
         422: {"description": "Validation error"},
         403: {"description": "Sacred content restricted"},
+        401: {"description": "Authentication required"},
     },
 )
 
@@ -52,11 +55,17 @@ async def list_lexical_entries(
     semantic_domain: str | None = None,
     visibility: str | None = None,
     speaker_id: UUID | None = None,
-    include_sacred: bool = Query(False, description="Include sacred entries (elders only)"),
+    include_sacred: bool = Query(
+        False,
+        description="Include sacred entries. Honored only for an elder or keeper session.",
+    ),
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
+    actor: Actor = Depends(require_identity),
 ):
-    supabase = get_supabase()
+    if include_sacred and not actor.can_view_sacred:
+        raise ForbiddenError("Sacred lexicon listing requires an elder or keeper session")
+    supabase = get_scoped_supabase(actor)
     query = supabase.table("lexical_entries").select("*")
 
     if search:
@@ -84,7 +93,13 @@ async def list_lexical_entries(
     response_model=LexicalEntryResponseV2,
     summary="Get lexical entry by ID",
 )
-async def get_entry(entry_id: UUID, include_sacred: bool = False):
+async def get_entry(
+    entry_id: UUID,
+    include_sacred: bool = False,
+    actor: Actor = Depends(require_identity),
+):
+    if include_sacred and not actor.can_view_sacred:
+        raise ForbiddenError("Sacred lexicon reads require an elder or keeper session")
     entry = get_lexical_entry(entry_id)
     if not include_sacred and (entry.get("is_sacred") or entry.get("visibility") == "sacred"):
         raise SacredContentError()

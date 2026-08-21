@@ -142,6 +142,7 @@ packages/
 | Clerk redirect loop | Verify `NEXT_PUBLIC_CLERK_*_URL` paths match admin routes |
 | `Invalid publishable key` | Keys in `apps/admin/.env` must match Clerk dashboard |
 | Middleware blocks all routes | Ensure `/sign-in` and `/sign-up` routes exist |
+| API `401 UNAUTHORIZED` on keeper routes | Send `Authorization: Bearer <Clerk JWT>`. Admin `apiFetch` attaches it automatically. See `docs/API_AUTH.md` |
 
 ### Database
 
