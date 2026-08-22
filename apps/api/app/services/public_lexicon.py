@@ -11,7 +11,8 @@ from app.models.public_schemas import PublicAudio, PublicWord
 RESTRICTED_SPIRITUAL = frozenset({"ceremonial", "sacred", "restricted"})
 ALLOWED_SPIRITUAL = ("none", "respectful")
 PHRASE_CATEGORIES = frozenset({"phrase", "proverb"})
-ENTRY_SELECT = "*, speakers!primary_speaker_id(display_name, role)"
+# Never join speakers in the anon query — RLS on speakers 500s the public list.
+ENTRY_SELECT = "*"
 
 
 def _utc_now_iso() -> str:
@@ -144,6 +145,30 @@ def to_public_word(row: dict, audio: dict | None = None) -> PublicWord:
     )
 
 
+def _attach_speakers(rows: list[dict]) -> None:
+    """Hydrate speaker names with the service role after the anon publish gate."""
+    ids = sorted(
+        {str(row["primary_speaker_id"]) for row in rows if row.get("primary_speaker_id")}
+    )
+    if not ids:
+        return
+    try:
+        result = (
+            get_supabase()
+            .table("speakers")
+            .select("id, display_name, role")
+            .in_("id", ids)
+            .execute()
+        )
+    except Exception:
+        return
+    by_id = {str(s.get("id")): s for s in (result.data or []) if s.get("id")}
+    for row in rows:
+        sid = row.get("primary_speaker_id")
+        if sid and str(sid) in by_id:
+            row["speakers"] = by_id[str(sid)]
+
+
 def _load_primary_audio(entry_ids: list[str]) -> dict[str, dict]:
     if not entry_ids:
         return {}
@@ -227,6 +252,7 @@ def list_public_words(
             "Public lexicon is temporarily unavailable"
         ) from exc
     rows = [row for row in (result.data or []) if is_publishable_row(row)]
+    _attach_speakers(rows)
     audio_by_entry = _load_primary_audio([row["id"] for row in rows])
     words = [to_public_word(row, audio_by_entry.get(row["id"])) for row in rows]
     total = result.count if result.count is not None else len(words)
@@ -254,6 +280,7 @@ def get_public_word(entry_id: UUID) -> PublicWord:
     rows = result.data or []
     if not rows or not is_publishable_row(rows[0]):
         raise NotFoundError("Lexical entry")
+    _attach_speakers(rows)
     row = rows[0]
     audio = _load_primary_audio([row["id"]]).get(row["id"])
     return to_public_word(row, audio)

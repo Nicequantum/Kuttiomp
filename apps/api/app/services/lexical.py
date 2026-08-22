@@ -2,6 +2,7 @@ from uuid import UUID
 
 from app.database import get_supabase
 from app.exceptions import NotFoundError, ValidationFailedError
+from app.services.public_lexicon import RESTRICTED_SPIRITUAL
 from pydantic import ValidationError
 
 from app.models.lexical_schemas import (
@@ -170,6 +171,48 @@ def bulk_create_lexical_entries(entries: list[BulkLexicalEntryInput]) -> BulkImp
         failed=failed,
         results=results,
     )
+
+
+def publish_lexical_entry(entry_id: UUID) -> dict:
+    """Set public + approved for learners. Blocks sacred/restricted; requires gloss and speaker."""
+    entry = get_lexical_entry(entry_id)
+    gloss = (entry.get("english_gloss") or "").strip()
+    spiritual = entry.get("spiritual_significance") or "none"
+    visibility = entry.get("visibility")
+
+    if entry.get("is_sacred") or visibility == "sacred" or spiritual in RESTRICTED_SPIRITUAL:
+        raise ValidationFailedError(
+            "Sacred or restricted entries cannot be published for learners",
+            details={
+                "is_sacred": bool(entry.get("is_sacred")),
+                "visibility": visibility,
+                "spiritual_significance": spiritual,
+            },
+        )
+    if not gloss:
+        raise ValidationFailedError(
+            "An English gloss is required before publishing for learners"
+        )
+    if not entry.get("primary_speaker_id"):
+        raise ValidationFailedError(
+            "A primary speaker is required before publishing for learners"
+        )
+
+    supabase = get_supabase()
+    result = (
+        supabase.table("lexical_entries")
+        .update(
+            {
+                "visibility": "public",
+                "approval_status": "approved",
+            }
+        )
+        .eq("id", str(entry_id))
+        .execute()
+    )
+    if not result.data:
+        raise NotFoundError("Lexical entry", str(entry_id))
+    return result.data[0]
 
 
 def get_lexical_entry(entry_id: UUID) -> dict:

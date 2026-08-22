@@ -18,6 +18,7 @@ from app.services.lexical import (
     bulk_create_lexical_entries,
     create_lexical_entry,
     get_lexical_entry,
+    publish_lexical_entry,
     update_lexical_entry,
 )
 
@@ -200,6 +201,23 @@ async def patch_entry(
     _keeper: Actor = Depends(require_keeper),
 ):
     return update_lexical_entry(entry_id, update)
+
+
+@router.post(
+    "/{entry_id}/publish",
+    response_model=LexicalEntryResponseV2,
+    summary="Publish for learners",
+    description=(
+        "Sets visibility=public and approval_status=approved so the entry can appear "
+        "on GET /api/v1/public/lexicon. Requires a gloss and primary speaker. "
+        "Blocks sacred, ceremonial, and restricted entries."
+    ),
+)
+async def publish_entry(
+    entry_id: UUID,
+    _keeper: Actor = Depends(require_keeper),
+):
+    return publish_lexical_entry(entry_id)
 
 
 @router.get("/{entry_id}/pronunciations", summary="Pronunciation variants by speaker")
