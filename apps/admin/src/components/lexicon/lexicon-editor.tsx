@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { Save, BookOpen, Plus, Trash2, CheckCircle2 } from "lucide-react";
+import { PublishForLearnersButton } from "@/components/lexicon/publish-for-learners";
 import { lexicalEntryFormSchema, type LexicalEntryForm, type CulturalContextInput } from "@kuttiomp/validation";
 import { ErrorAlert, MetadataField, SacredLanguageNotice } from "@kuttiomp/ui";
 import { SEMANTIC_DOMAIN_LABELS, CONTEXT_TYPE_LABELS, type LexicalEntry } from "@kuttiomp/types";
@@ -105,6 +106,7 @@ export function LexiconEditor({ entry, speakers = [], onSaved }: LexiconEditorPr
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [activeTab, setActiveTab] = useState("core");
+  const [savedId, setSavedId] = useState<string | undefined>(entry?.id);
 
   const update = useCallback(<K extends keyof LexicalEntryForm>(key: K, value: LexicalEntryForm[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -145,13 +147,15 @@ export function LexiconEditor({ entry, speakers = [], onSaved }: LexiconEditorPr
       const result = entry?.id
         ? await api.lexicon.update(entry.id, payload)
         : await api.lexicon.create(payload);
+      const saved = result as LexicalEntry;
+      if (saved.id) setSavedId(saved.id);
       setFeedback({
         type: "success",
         message: entry?.id
           ? "Entry updated. It will enter the elder review workflow if marked sacred."
           : "Entry created and submitted for review.",
       });
-      onSaved?.(result as LexicalEntry);
+      onSaved?.(saved);
     } catch (err) {
       setFeedback({ type: "error", message: formatSaveError(err, "Save") });
     } finally {
@@ -172,10 +176,26 @@ export function LexiconEditor({ entry, speakers = [], onSaved }: LexiconEditorPr
             {entry?.id ? "Edit Lexical Entry" : "New Lexical Entry"}
           </span>
         </div>
-        <Button onClick={handleSave} disabled={saving} className="gap-2" aria-busy={saving}>
-          <Save className="h-4 w-4" />
-          {saving ? "Saving..." : "Save Entry"}
-        </Button>
+        <div className="flex items-center gap-2">
+          {savedId && (
+            <PublishForLearnersButton
+              entry={{
+                id: savedId,
+                word_narragansett: form.word_narragansett,
+                english_gloss: form.english_gloss,
+                primary_speaker_id: form.primary_speaker_id ?? null,
+                visibility: form.visibility,
+                approval_status: entry?.approval_status,
+                is_sacred: form.is_sacred,
+                spiritual_significance: form.spiritual_significance,
+              }}
+            />
+          )}
+          <Button onClick={handleSave} disabled={saving} className="gap-2" aria-busy={saving}>
+            <Save className="h-4 w-4" />
+            {saving ? "Saving..." : "Save Entry"}
+          </Button>
+        </div>
       </div>
 
       {feedback?.type === "success" && (
@@ -473,6 +493,27 @@ export function LexiconEditor({ entry, speakers = [], onSaved }: LexiconEditorPr
             All entries enter the approval workflow upon save. Entries marked sacred or with
             spiritual significance &quot;sacred&quot; are automatically flagged for elder review.
           </p>
+          {savedId && (
+            <div className="rounded-md border border-emerald-900/10 bg-emerald-50/40 p-3 space-y-2">
+              <p className="text-sm font-medium">Learner app</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Publish for learners sets visibility to public and approval to approved.
+                Sacred, ceremonial, and restricted entries stay in the Keeper system only.
+              </p>
+              <PublishForLearnersButton
+                entry={{
+                  id: savedId,
+                  word_narragansett: form.word_narragansett,
+                  english_gloss: form.english_gloss,
+                  primary_speaker_id: form.primary_speaker_id ?? null,
+                  visibility: form.visibility,
+                  approval_status: entry?.approval_status,
+                  is_sacred: form.is_sacred,
+                  spiritual_significance: form.spiritual_significance,
+                }}
+              />
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>
