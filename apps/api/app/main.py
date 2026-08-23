@@ -17,6 +17,7 @@ from app.routers import (
     clans,
     contributions,
     cultural,
+    forge,
     grok,
     grok_test,
     health,
@@ -52,6 +53,7 @@ the verified token, never from the client.
 - **Speakers** — Multi-generational Knowledge Keepers
 - **Lexicon** — PhD-grade lexical documentation
 - **Public Lexicon** — Unauthenticated `GET /api/v1/public/*` for kuttiomp-learn (publish-gated)
+- **Language Forge** — Keeper-only neologism dossiers (`/api/v1/forge`); learners use `/api/v1/public/forge-feed`
 - **Audio** — Speaker-attributed recordings
 - **Cultural** — Mother Earth, ceremony, TEK contexts
 - **Land** — PostGIS place-based knowledge
@@ -103,6 +105,10 @@ app.include_router(grok_test.router)
 app.include_router(clans.router, prefix="/api/v1")
 app.include_router(speakers.router, prefix="/api")
 app.include_router(speakers.router, prefix="/api/v1")
+app.include_router(forge.public_router, prefix="/api")
+app.include_router(forge.public_router, prefix="/api/v1")
+app.include_router(forge.router, prefix="/api")
+app.include_router(forge.router, prefix="/api/v1")
 app.include_router(lexicon.router, prefix="/api/v1")
 app.include_router(public_lexicon.router, prefix="/api/v1")
 app.include_router(audio.router, prefix="/api/v1")

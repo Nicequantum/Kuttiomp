@@ -10,6 +10,8 @@ Apply these SQL files **in exact order** via the Supabase SQL Editor.
 | 2 | `002_advanced_linguistic_schema.sql` | 002 | PostGIS, orthographies, cultural contexts, contributions |
 | 3 | `003_performance_indexes.sql` | 003 | Performance indexes, integrity constraints |
 | 4 | `004_final_hardening.sql` | 004 | Migration tracking, final constraints, foundation complete |
+| 5 | `005_stewardship_continuity_views.sql` | 005 | Stewardship continuity views |
+| 6 | `006_language_forge.sql` | 006 | Language Forge keeper dossiers (neologisms) |
 
 ## Prerequisites
 
@@ -27,7 +29,7 @@ After migration 002:
 
 1. Open Supabase Dashboard → SQL Editor
 2. Paste contents of `001_initial_schema.sql` → Run
-3. Repeat for `002`, `003`, `004` in order
+3. Repeat for `002` through `006` in order
 4. Verify: `SELECT * FROM foundation_status;` should show `foundation_ready = true`
 
 ## Verify Foundation

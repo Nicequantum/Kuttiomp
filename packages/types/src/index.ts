@@ -1,6 +1,7 @@
 export * from "./cultural";
 export * from "./linguistic";
 export * from "./governance";
+export * from "./forge";
 
 export const VISIBILITY_LABELS = {
   public: "Public",
