@@ -1,5 +1,6 @@
 import { Header } from "@/components/layout/header";
 import { ContinuityPanelLive } from "@/components/stewardship/continuity-panel-live";
+import { CorpusModulesPanel } from "@/components/stewardship/corpus-modules-panel";
 
 /**
  * Knowledge Keeper stewardship surface — live RPC primary, offline absolute fallback.
@@ -9,14 +10,19 @@ export default function StewardshipPage() {
     <>
       <Header
         title="Corpus Stewardship"
-        description="Absolute contribution counts for speakers — service to the living language, never a game."
+        description="Independent modules convert the public desk from demo to real keeper knowledge. Absolute contribution counts — service to the living language, never a game."
       />
       <div className="space-y-6 p-6 md:p-8">
+        <CorpusModulesPanel />
         <ContinuityPanelLive />
         <p
           className="mode-content-text max-w-3xl text-muted-foreground"
         >
           Apply{" "}
+          <code className="rounded bg-muted px-1">
+            supabase/migrations/007_corpus_modules.sql
+          </code>{" "}
+          so the learner-feed modules persist, then{" "}
           <code className="rounded bg-muted px-1">
             supabase/migrations/005_stewardship_continuity_views.sql
           </code>{" "}

@@ -57,7 +57,8 @@ async def public_entry(entry_id: UUID):
     summary="Language Forge rows visible to learners",
     description=(
         "Unauthenticated. Sacred and restricted dossiers never appear. "
-        "In keeper_only mode only approved + production-ready rows are returned."
+        "feed_forge_demo_merge on → teaching drafts may appear; off → keeper_only "
+        "(approved + production-ready living words only, if that module is on)."
     ),
 )
 async def public_forge_feed():

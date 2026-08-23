@@ -1,5 +1,6 @@
 """Language Forge — Knowledge Keeper only. Not a learner creation surface."""
 
+from datetime import datetime, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
@@ -8,6 +9,7 @@ from app.auth import Actor, require_elder, require_keeper
 from app.database import get_supabase
 from app.exceptions import ForbiddenError, NotFoundError, ValidationFailedError
 from app.models.forge_schemas import (
+    CorpusModulesUpdate,
     ForgeCommentCreate,
     ForgeEntryCreate,
     ForgeEntryResponse,
@@ -30,6 +32,12 @@ router = APIRouter(
 
 public_router = APIRouter(prefix="/forge", tags=["Language Forge"])
 
+MODULE_LABELS = {
+    "feedHistorical": "Historical seed",
+    "feedApprovedLiving": "Approved living words",
+    "feedForgeDemoMerge": "Forge teaching feed",
+}
+
 
 def _normalize(word: str) -> str:
     return " ".join(word.lower().split())
@@ -47,36 +55,131 @@ def _actor_id(actor: Actor) -> str | None:
     return str(actor.speaker_id) if actor.speaker_id else None
 
 
-def learner_feed_payload() -> dict:
-    """Sacred/restricted never leave. Demo vs keeper_only from app_environment."""
+def _read_env_row() -> dict:
     supabase = get_supabase()
     env = supabase.table("app_environment").select("*").eq("id", "default").limit(1).execute()
-    mode = (env.data or [{"corpus_mode": "demo_historical"}])[0].get("corpus_mode") or "demo_historical"
-    rows = supabase.table("language_forge_entries").select("*").execute().data or []
+    return (env.data or [{}])[0]
+
+
+def modules_from_env(row: dict | None) -> dict:
+    """Independent feed flags. Missing columns fall back from corpus_mode."""
+    row = row or {}
+    merge = row.get("feed_forge_demo_merge")
+    if merge is None:
+        merge = (row.get("corpus_mode") or "demo_historical") != "keeper_only"
+    hist = row.get("feed_historical")
+    living = row.get("feed_approved_living")
+    return {
+        "feedHistorical": True if hist is None else bool(hist),
+        "feedApprovedLiving": True if living is None else bool(living),
+        "feedForgeDemoMerge": bool(merge),
+    }
+
+
+def corpus_mode_from_modules(modules: dict) -> str:
+    return "demo_historical" if modules.get("feedForgeDemoMerge") else "keeper_only"
+
+
+def _is_released(entry: dict) -> bool:
+    return entry.get("status") == "approved" and bool(entry.get("is_production_ready"))
+
+
+def forge_entry_visible(entry: dict, modules: dict) -> bool:
+    if entry.get("spiritual_significance") in RESTRICTED_SPIRITUAL:
+        return False
+    living = modules.get("feedApprovedLiving") and _is_released(entry)
+    teaching = (
+        modules.get("feedForgeDemoMerge")
+        and bool(entry.get("is_demo_visible"))
+        and entry.get("status") not in {"rejected", "archived"}
+        and not _is_released(entry)
+    )
+    return bool(living or teaching)
+
+
+def _preview(modules: dict) -> dict:
+    supabase = get_supabase()
+    forge = supabase.table("language_forge_entries").select("*").execute().data or []
+    lex = supabase.table("lexical_entries").select("*").execute().data or []
+    historical = sum(1 for row in lex if not row.get("is_neologism"))
+    approved_living = sum(
+        1
+        for entry in forge
+        if _is_released(entry) and entry.get("spiritual_significance") not in RESTRICTED_SPIRITUAL
+    )
+    teaching_drafts = sum(
+        1
+        for entry in forge
+        if bool(entry.get("is_demo_visible"))
+        and entry.get("status") not in {"rejected", "archived"}
+        and not _is_released(entry)
+        and entry.get("spiritual_significance") not in RESTRICTED_SPIRITUAL
+    )
+    return {
+        "historical": historical,
+        "approvedLiving": approved_living,
+        "teachingDrafts": teaching_drafts,
+        "learnerTotal": (
+            (historical if modules.get("feedHistorical") else 0)
+            + (approved_living if modules.get("feedApprovedLiving") else 0)
+            + (teaching_drafts if modules.get("feedForgeDemoMerge") else 0)
+        ),
+    }
+
+
+def _audit_rows() -> list:
+    supabase = get_supabase()
+    try:
+        rows = (
+            supabase.table("corpus_module_audit")
+            .select("*")
+            .order("created_at", desc=True)
+            .limit(24)
+            .execute()
+        )
+        return rows.data or []
+    except Exception:
+        return []
+
+
+def corpus_desk_payload(modules: dict | None = None, env: dict | None = None) -> dict:
+    env = env if env is not None else _read_env_row()
+    modules = modules if modules is not None else modules_from_env(env)
+    return {
+        "corpusMode": corpus_mode_from_modules(modules),
+        "modules": modules,
+        "preview": _preview(modules),
+        "updatedBy": env.get("updated_by"),
+        "updatedAt": env.get("updated_at"),
+        "audit": _audit_rows(),
+    }
+
+
+def learner_feed_payload() -> dict:
+    """Sacred/restricted never leave. Teaching feed vs keeper knowledge from modules."""
+    env = _read_env_row()
+    modules = modules_from_env(env)
+    mode = corpus_mode_from_modules(modules)
+    rows = get_supabase().table("language_forge_entries").select("*").execute().data or []
     out = []
     for entry in rows:
-        if entry.get("spiritual_significance") in {"sacred", "restricted", "ceremonial"}:
+        if not forge_entry_visible(entry, modules):
             continue
-        if mode == "keeper_only":
-            ok = entry.get("status") == "approved" and entry.get("is_production_ready")
-        else:
-            ok = entry.get("is_demo_visible") and entry.get("status") not in {"rejected", "archived"}
-        if not ok:
-            continue
+        released = _is_released(entry)
         out.append(
             {
                 "id": entry["id"],
                 "wordNarragansett": entry["proposed_word"],
                 "englishGloss": entry["english_gloss"],
                 "semanticDomain": entry.get("semantic_domain") or "other",
-                "source": "keeper_approved" if entry.get("status") == "approved" else "historical_seed",
-                "authority": "living_speaker" if entry.get("status") == "approved" else "colonial_record",
-                "elderApproved": bool(entry.get("is_production_ready")),
+                "source": "keeper_approved" if released else "historical_seed",
+                "authority": "living_speaker" if released else "colonial_record",
+                "elderApproved": released,
                 "isSacred": False,
                 "speakerAttribution": "Language Forge / Knowledge Keepers",
             }
         )
-    return {"corpusMode": mode, "words": out}
+    return {"corpusMode": mode, "modules": modules, "words": out}
 
 
 @public_router.get("/public/learner-feed", summary="Read-only feed for kuttiomp-learn")
@@ -109,6 +212,74 @@ async def list_forge_entries(
         query = query.eq("semantic_domain", semantic_domain)
     result = query.order("last_updated_at", desc=True).range(offset, offset + limit - 1).execute()
     return result.data or []
+
+
+@router.get("/corpus", summary="Learner-feed modules (Keepers)")
+async def get_corpus(_keeper: Actor = Depends(require_keeper)):
+    return corpus_desk_payload()
+
+
+@router.patch("/corpus", summary="Convert learner feed modules (Sharente / elder)")
+async def update_corpus(payload: CorpusModulesUpdate, actor: Actor = Depends(require_elder)):
+    supabase = get_supabase()
+    env = _read_env_row()
+    current = modules_from_env(env)
+    nxt = {
+        "feedHistorical": (
+            current["feedHistorical"] if payload.feed_historical is None else payload.feed_historical
+        ),
+        "feedApprovedLiving": (
+            current["feedApprovedLiving"]
+            if payload.feed_approved_living is None
+            else payload.feed_approved_living
+        ),
+        "feedForgeDemoMerge": (
+            current["feedForgeDemoMerge"]
+            if payload.feed_forge_demo_merge is None
+            else payload.feed_forge_demo_merge
+        ),
+    }
+    if nxt == current:
+        return corpus_desk_payload(current, env)
+
+    mode = corpus_mode_from_modules(nxt)
+    update = {
+        "feed_historical": nxt["feedHistorical"],
+        "feed_approved_living": nxt["feedApprovedLiving"],
+        "feed_forge_demo_merge": nxt["feedForgeDemoMerge"],
+        "corpus_mode": mode,
+        "updated_by": _actor_id(actor),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    existing = (
+        supabase.table("app_environment").select("*").eq("id", "default").limit(1).execute()
+    )
+    if existing.data:
+        supabase.table("app_environment").update(update).eq("id", "default").execute()
+    else:
+        supabase.table("app_environment").insert({"id": "default", **update}).execute()
+
+    for key in current:
+        if current[key] == nxt[key]:
+            continue
+        try:
+            supabase.table("corpus_module_audit").insert(
+                {
+                    "actor_id": _actor_id(actor),
+                    "module_key": key,
+                    "old_value": str(current[key]).lower(),
+                    "new_value": str(nxt[key]).lower(),
+                    "summary": (
+                        f"{MODULE_LABELS.get(key, key)}: "
+                        f"{'on' if current[key] else 'off'} → {'on' if nxt[key] else 'off'}."
+                    ),
+                }
+            ).execute()
+        except Exception:
+            pass
+
+    env = _read_env_row()
+    return corpus_desk_payload(modules_from_env(env), env)
 
 
 @router.get("/{entry_id}", summary="Get Forge dossier with discussion and history")
