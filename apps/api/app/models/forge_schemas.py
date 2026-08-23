@@ -1,7 +1,7 @@
 from typing import Any, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ForgeEntryCreate(BaseModel):
@@ -71,3 +71,13 @@ class ForgeVisibilityUpdate(BaseModel):
 class ForgeCommentCreate(BaseModel):
     author_id: Optional[UUID] = None
     body: str = Field(min_length=1)
+
+
+class CorpusModulesUpdate(BaseModel):
+    """Partial module patch. Omitted flags stay as they are."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    feed_historical: Optional[bool] = Field(default=None, alias="feedHistorical")
+    feed_approved_living: Optional[bool] = Field(default=None, alias="feedApprovedLiving")
+    feed_forge_demo_merge: Optional[bool] = Field(default=None, alias="feedForgeDemoMerge")

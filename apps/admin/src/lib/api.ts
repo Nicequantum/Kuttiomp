@@ -66,4 +66,16 @@ export const api = {
         body: JSON.stringify(data),
       }),
   },
+  forge: {
+    corpus: () => apiFetch("/api/v1/forge/corpus"),
+    updateCorpus: (data: {
+      feedHistorical?: boolean;
+      feedApprovedLiving?: boolean;
+      feedForgeDemoMerge?: boolean;
+    }) =>
+      apiFetch("/api/v1/forge/corpus", {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      }),
+  },
 };

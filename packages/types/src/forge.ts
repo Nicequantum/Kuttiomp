@@ -30,6 +30,45 @@ export type ForgeAttestationStatus =
 
 export type CorpusMode = "demo_historical" | "keeper_only";
 
+export type CorpusModules = {
+  feedHistorical: boolean;
+  feedApprovedLiving: boolean;
+  feedForgeDemoMerge: boolean;
+};
+
+export function corpusModeFromModules(
+  modules: Pick<CorpusModules, "feedForgeDemoMerge">,
+): CorpusMode {
+  return modules.feedForgeDemoMerge ? "demo_historical" : "keeper_only";
+}
+
+export type LearnerFeedPreview = {
+  historical: number;
+  approvedLiving: number;
+  teachingDrafts: number;
+  learnerTotal: number;
+};
+
+export type CorpusModuleAudit = {
+  id: string;
+  actor_id: string | null;
+  module_key: string;
+  old_value: string | null;
+  new_value: string | null;
+  summary: string;
+  created_at: string;
+};
+
+export type CorpusDesk = {
+  corpusMode: CorpusMode;
+  modules: CorpusModules;
+  preview: LearnerFeedPreview;
+  updatedBy: string | null;
+  updatedAt: string | null;
+  audit: CorpusModuleAudit[];
+};
+
+
 export type ForgeRootStem = {
   form: string;
   language: string;
@@ -41,6 +80,7 @@ export type ForgeRelatedWord = {
   form: string;
   gloss: string;
 };
+
 
 export type LanguageForgeEntry = {
   id: string;
@@ -124,16 +164,36 @@ export type PublicForgeWord = {
 };
 
 export function forgeVisibleToLearners(
-  entry: Pick<LanguageForgeEntry, "status" | "is_demo_visible" | "is_production_ready" | "spiritual_significance">,
-  corpus: CorpusMode,
+  entry: Pick<
+    LanguageForgeEntry,
+    "status" | "is_demo_visible" | "is_production_ready" | "spiritual_significance"
+  >,
+  corpus: CorpusMode | CorpusModules,
 ): boolean {
-  if (entry.spiritual_significance === "sacred" || entry.spiritual_significance === "restricted") {
+  if (
+    entry.spiritual_significance === "sacred" ||
+    entry.spiritual_significance === "restricted" ||
+    entry.spiritual_significance === "ceremonial"
+  ) {
     return false;
   }
-  if (corpus === "keeper_only") {
-    return entry.status === "approved" && entry.is_production_ready;
-  }
-  return entry.is_demo_visible && entry.status !== "rejected" && entry.status !== "archived";
+  const modules: CorpusModules =
+    typeof corpus === "string"
+      ? {
+          feedHistorical: true,
+          feedApprovedLiving: true,
+          feedForgeDemoMerge: corpus === "demo_historical",
+        }
+      : corpus;
+  const released = entry.status === "approved" && entry.is_production_ready;
+  const living = modules.feedApprovedLiving && released;
+  const teaching =
+    modules.feedForgeDemoMerge &&
+    entry.is_demo_visible &&
+    entry.status !== "rejected" &&
+    entry.status !== "archived" &&
+    !released;
+  return living || teaching;
 }
 
 export type { ApprovalStatus };

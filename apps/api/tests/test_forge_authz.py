@@ -31,6 +31,19 @@ FORGE_ROWS = [
         "version": 1,
         "last_updated_at": "2026-08-17T00:00:00Z",
     },
+    {
+        "id": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+        "proposed_word": "anunckquat",
+        "word_normalized": "anunckquat",
+        "english_gloss": "rainbow",
+        "status": "approved",
+        "semantic_domain": "weather",
+        "spiritual_significance": "none",
+        "is_demo_visible": False,
+        "is_production_ready": True,
+        "version": 1,
+        "last_updated_at": "2026-08-17T00:00:00Z",
+    },
 ]
 
 
@@ -39,6 +52,8 @@ def _forge_client():
         {
             "language_forge_entries": FORGE_ROWS,
             "app_environment": [{"id": "default", "corpus_mode": "demo_historical"}],
+            "lexical_entries": [],
+            "corpus_module_audit": [],
             "forge_comments": [],
             "forge_audit_log": [],
             "forge_example_sentences": [],
@@ -83,8 +98,11 @@ def test_public_learner_feed_unauthenticated(client, monkeypatch):
     body = response.json()
     words = [row["wordNarragansett"] for row in body["words"]]
     assert "wunnegan" in words
+    assert "anunckquat" in words
     assert "restricted-form" not in words
     assert body["corpusMode"] == "demo_historical"
+    assert body["modules"]["feedForgeDemoMerge"] is True
+    assert body["modules"]["feedApprovedLiving"] is True
 
 
 def test_public_forge_feed_alias(client, monkeypatch):
@@ -95,6 +113,27 @@ def test_public_forge_feed_alias(client, monkeypatch):
     response = client.get("/api/v1/public/forge-feed")
     assert response.status_code == 200
     assert response.json()["corpusMode"] == "demo_historical"
+
+
+def test_unauthenticated_corpus_denied(client):
+    response = client.get("/api/v1/forge/corpus")
+    assert response.status_code == 401
+
+
+def test_learner_cannot_read_corpus(client, learner_headers):
+    response = client.get("/api/v1/forge/corpus", headers=learner_headers)
+    assert response.status_code == 403
+
+
+def test_keeper_can_read_corpus(client, keeper_headers, monkeypatch):
+    monkeypatch.setattr("app.routers.forge.get_supabase", _forge_client)
+    response = client.get("/api/v1/forge/corpus", headers=keeper_headers)
+    assert response.status_code == 200
+    body = response.json()
+    assert body["corpusMode"] == "demo_historical"
+    assert body["modules"]["feedForgeDemoMerge"] is True
+    assert body["preview"]["teachingDrafts"] == 1
+    assert body["preview"]["approvedLiving"] == 1
 
 
 def test_non_elder_cannot_mark_production(client, keeper_headers):
