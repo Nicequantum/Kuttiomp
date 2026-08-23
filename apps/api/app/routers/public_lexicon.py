@@ -50,3 +50,18 @@ async def public_lexicon(
 )
 async def public_entry(entry_id: UUID):
     return get_public_word(entry_id)
+
+
+@router.get(
+    "/forge-feed",
+    summary="Language Forge rows visible to learners",
+    description=(
+        "Unauthenticated. Sacred and restricted dossiers never appear. "
+        "In keeper_only mode only approved + production-ready rows are returned."
+    ),
+)
+async def public_forge_feed():
+    from app.routers.forge import learner_feed_payload
+
+    return learner_feed_payload()
+

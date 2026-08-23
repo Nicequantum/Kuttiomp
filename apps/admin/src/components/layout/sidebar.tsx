@@ -15,6 +15,7 @@ import {
   GitBranch,
   ScrollText,
   Upload,
+  Flame,
 } from "lucide-react";
 import { KuttiompBrand } from "@kuttiomp/ui";
 import { ModeSwitcher, useModeTheme } from "@kuttiomp/admin-design-system";
@@ -33,6 +34,7 @@ const navigation = [
   { name: "Speakers", href: "/speakers/profiles", icon: Users },
   { name: "Clans", href: "/clans", icon: TreePine },
   { name: "Lexicon", href: "/lexicon", icon: BookOpen },
+  { name: "Language Forge", href: "/forge", icon: Flame },
   { name: "Stewardship", href: "/stewardship", icon: ScrollText },
   { name: "Lexicon Editor", href: "/lexicon/editor", icon: FileEdit },
   { name: "Seed / Import", href: "/import", icon: Upload },
